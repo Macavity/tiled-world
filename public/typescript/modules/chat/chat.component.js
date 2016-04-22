@@ -1,4 +1,4 @@
-System.register(['angular2/core'], function(exports_1, context_1) {
+System.register(["angular2/core"], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -11,26 +11,26 @@ System.register(['angular2/core'], function(exports_1, context_1) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var core_1;
-    var AppComponent;
+    var ChatComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             }],
         execute: function() {
-            AppComponent = (function () {
-                function AppComponent() {
+            ChatComponent = (function () {
+                function ChatComponent() {
                 }
-                AppComponent = __decorate([
+                ChatComponent = __decorate([
                     core_1.Component({
-                        selector: 'app',
-                        template: "\n    <div class=\"row\">\n        <div class=\"col-md-2\">\n            <SidebarComponent></SidebarComponent>\n        </div>\n        <div class=\"col-md-10\">\n            <MapComponent></MapComponent>\n            <ChatComponent></ChatComponent>\n        </div>\n    </div>\n    "
+                        selector: 'map',
+                        template: "Chatmodul"
                     }), 
                     __metadata('design:paramtypes', [])
-                ], AppComponent);
-                return AppComponent;
+                ], ChatComponent);
+                return ChatComponent;
             }());
-            exports_1("AppComponent", AppComponent);
+            exports_1("ChatComponent", ChatComponent);
         }
     }
 });
