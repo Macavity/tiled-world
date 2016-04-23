@@ -16,4 +16,6 @@ import {MapComponent} from "./modules/map/map.component";
     </div>
     `
 })
-export class AppComponent { }
+export class AppComponent {
+    
+}

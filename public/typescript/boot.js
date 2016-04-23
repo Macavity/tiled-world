@@ -1,3 +1,4 @@
+/// <reference path="../../../typings/browser/ambient/es6-shim/index.d.ts"/>
 System.register(['angular2/platform/browser', './app.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
