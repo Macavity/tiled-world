@@ -1,11 +1,17 @@
-@extends('map::layouts.master')
+@extends('map::layouts.map')
 
-@section('content')
-	
-	<h1>Hello World</h1>
-	
-	<p>
-		This view is loaded from module: {!! config('map.name') !!}
-	</p>
+@section('module_content')
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <div class="panel panel-default">
+          <div class="panel-heading">Dashboard</div>
 
-@stop
+          <div class="panel-body">
+            You are logged in!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+@endsection

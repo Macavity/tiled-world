@@ -1,0 +1,15 @@
+{
+    "name": "Guild",
+    "alias": "guild",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Guild\\Providers\\GuildServiceProvider"
+    ],
+    "aliases":{},
+    "files": [
+        "start.php"
+    ]
+}
