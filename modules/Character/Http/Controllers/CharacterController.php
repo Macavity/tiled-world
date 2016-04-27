@@ -2,27 +2,32 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Character\CharacterRepository;
 use Pingpong\Modules\Routing\Controller;
 
 class CharacterController extends Controller {
 
-    public function __construct()
+    /**
+     * @var CharacterRepository
+     */
+    protected $characters;
+
+    public function __construct(CharacterRepository $characterRespository)
     {
+        $this->characters = $characterRespository;
+
         $this->middleware('auth');
     }
 
     /**
      * List all characters of the current user
+     * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-	public function index()
+	public function index(Request $request)
 	{
-        //$activeCharacter = DB::table('characters')->where('user_id');
-
-        $characters = DB::table('characters')->where('user_id')->get();
-
-
 		return view('character::index', array(
+            'characters' => $this->characters->forUser($request->user())
         ));
 	}
 
@@ -39,9 +44,28 @@ class CharacterController extends Controller {
     }
 
     public function store(Request $request){
+        // @TODO Character:store - Strengthen validation
         $this->validate($request,[
             'name' => 'required|max:255',
+            'gender' => 'required',
+            'job' => 'required',
+            'hair-style' => 'required',
+            'hair-color' => 'required',
         ]);
+
+        $request->user()->characters()->create([
+            'name' => $request->input('name'),
+            'gender' => $request->input('gender'),
+            'job' => $request->input('job'),
+            'hair_style' => $request->input('hair-style'),
+            'hair_color' => $request->input('hair-color'),
+        ]);
+
+        return redirect('/char');
+    }
+
+    public function view(){
+        return view('character::view');
     }
 
 	public function skills(){

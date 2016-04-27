@@ -4,17 +4,32 @@
 
   <a href="{{ url('char/create') }}">Neuen Charakter erstellen</a>
 
-  <table width="100%" cellpadding="2" cellspacing="1" border="0" class="forumline">
-  <tr>
-    <th colspan="4">{{ trans('character.switch-character') }}</th>
-  </tr>
-  <tr>
-    <td colspan="4" height="1" class="spaceRow"><!-- --></td>
-  </tr>
-  <tr class="genmed">
-    <td colspan="4" height="1" class="spaceRow">{{ trans('character.switch-description') }}}</td>
-  </tr>
-  <!-- BEGIN characters -->
+  <h1>{{ trans('character.switch-character') }}</h1>
+  <p>{{ trans('character.switch-description') }}}</p>
+
+  @if(count($characters) > 0)
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Name</th>
+
+    </tr>
+    </thead>
+    <tbody>
+      @foreach($characters as $char)
+      <tr>
+        <td><img src="{{$char->image}}"></td>
+        <td>{{$char->name}}</td>
+        <td>
+          <a class="btn btn-success" href="{{ url("/char/activate/".$char->id) }}"><i class="glyphicon glyphicon-pushpin"></i> Aktivieren</a>
+          <a class="btn btn-danger" href="{{ url("/char/delete/".$char->id) }}"><i class="glyphicon glyphicon-trash"></i> Löschen</a>
+        </td>
+      </tr>
+      @endforeach
+    </tbody>
+  </table>
+  @endif
   <tr class="genmed">
     <td class="{characters.ROW_STYLE}" colspan="1" align="middle" valign="middle">
       {characters.IMG_CHARA}</td>
@@ -26,5 +41,4 @@
       {characters.S_CHARA}</td>
   </tr>
   <!-- END characters -->
-</table>
 @stop
