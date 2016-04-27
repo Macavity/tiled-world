@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Character\CharacterRepository;
 use Pingpong\Modules\Routing\Controller;
+use Modules\Character\Repositories\CharacterRepository;
 
 class CharacterController extends Controller {
 

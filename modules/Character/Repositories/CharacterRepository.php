@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Character;
+namespace Modules\Character\Repositories;
 
 use App\User;
-use Modules\Character\Character;
+use Modules\Character\Entities\Character;
 
 class CharacterRepository {
 
@@ -17,6 +17,10 @@ class CharacterRepository {
         return Character::where('user_id', $user->id)
             ->orderBy('base_level', 'asc')
             ->get();
+    }
+
+    public function activeForUser(User $user){
+        return Character::find($user->active_character);
     }
 
 }

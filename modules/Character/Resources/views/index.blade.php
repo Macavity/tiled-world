@@ -30,15 +30,4 @@
     </tbody>
   </table>
   @endif
-  <tr class="genmed">
-    <td class="{characters.ROW_STYLE}" colspan="1" align="middle" valign="middle">
-      {characters.IMG_CHARA}</td>
-    <td class="{characters.ROW_STYLE}" colspan="1" align="left">
-      {characters.D_CHARA}</td>
-    <td class="{characters.ROW_STYLE}" colspan="1" align="right" valign="bottom">
-      {characters.B_CHANGE_CHARA}{characters.B_DEL_CHARA}</td>
-    <td class="{characters.ROW_STYLE}" colspan="1" align="right">
-      {characters.S_CHARA}</td>
-  </tr>
-  <!-- END characters -->
 @stop

@@ -1,4 +1,4 @@
-<?php namespace Modules\Character;
+<?php namespace Modules\Character\Entities;
 
 use App\User;
 use Illuminate\Database\Eloquent\Model;
@@ -86,9 +86,9 @@ class Character extends Model
 
                     if ($mask['red'] == 0 && $mask['green'] == 0 && $mask['blue'] == 0) {
                         if ($f['red'] <= 127) {
-                            $new_color = multiPlus($f, $dye);
+                            $new_color = $this->multiPlus($f, $dye);
                         } elseif ($f['red'] > 127) {
-                            $new_color = multiMinus($f, $dye);
+                            $new_color = $this->multiMinus($f, $dye);
                         }
 
                         $r = $new_color['red'];
@@ -100,11 +100,6 @@ class Character extends Model
                     }
                 }
             }
-        }
-
-
-        if ($die) {
-            return $die;
         }
 
         $hair_w = ImageSX($hairImg);
@@ -207,8 +202,7 @@ class Character extends Model
         return '<img src="' . $imagefile . '" border="1">' . $die . $adm_info;
     }
 
-    public function generateAvatarImage ($char, $gender, $pos = '00000', $bool_admin = false)
-        {
+    public function generateAvatarImage ($char, $gender, $pos = '00000', $bool_admin = false){
             global $db, $table_prefix, $equip, $debug;
             $imagefile = ($bool_admin) ? "../images/avatars/%s.png" : "images/avatars/%s.png";
 
@@ -275,19 +269,10 @@ class Character extends Model
 
                             if ($mask['red'] == 0 && $mask['green'] == 0 && $mask['blue'] == 0) {
                                 if ($f['red'] <= 127) {
-                                    $new_color = multiPlus($f, $dye);
-                                    //$out .= '<br><font color="ff0000">Grauwert: '.$f[red]." (127-) ";
-                                    //foreach($new_color as $t => $u){
-                                    //	$out .= ", $t => $u";
-                                    //}
-                                    //$out .= "</font>";
-                                } elseif ($f['red'] > 127) {
-                                    $new_color = multiMinus($f, $dye);
-                                    //$out .= '<br><font color="00ff00">Grauwert: '.$f[red]." (127+) ";
-                                    //foreach($new_color as $t => $u){
-                                    //	$out .= ", $t => $u";
-                                    //}
-                                    //$out .= "</font>";
+                                    $new_color = $this->multiPlus($f, $dye);
+                                }
+                                elseif ($f['red'] > 127) {
+                                    $new_color = $this->multiMinus($f, $dye);
                                 }
 
                                 $r = $new_color['red'];
@@ -461,5 +446,21 @@ class Character extends Model
             'g' => hexdec(substr($hex, 2, 2)), // 2nd pair
             'b' => hexdec(substr($hex, 4, 2))  // 3rd pair
         );
+    }
+
+    private function multiPlus ($col_1, $col_2)
+    {
+        $r['red'] = round($col_1['red'] * $col_2['red'] / 255 * 2);
+        $r['green'] = round($col_1['green'] * $col_2['green'] / 255 * 2);
+        $r['blue'] = round($col_1['blue'] * $col_2['blue'] / 255 * 2);
+        return $r;
+    }
+
+    private function multiMinus ($col_1, $col_2)
+    {
+        $r['red'] = round(255 - ((255 - $col_1['red']) * (255 - $col_2['red']) / 255 * 2));
+        $r['green'] = round(255 - ((255 - $col_1['green']) * (255 - $col_2['green']) / 255 * 2));
+        $r['blue'] = round(255 - ((255 - $col_1['blue']) * (255 - $col_2['blue']) / 255 * 2));
+        return $r;
     }
 }
