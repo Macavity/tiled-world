@@ -5,10 +5,15 @@ namespace App;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Modules\Character\Entities\Character;
 
+/**
+ * Class User
+ * @package App
+ *
+ * @property integer id
+ * @property string name
+ */
 class User extends Authenticatable
 {
-    public $id;
-    public $name;
 
     /**
      * The attributes that are mass assignable.

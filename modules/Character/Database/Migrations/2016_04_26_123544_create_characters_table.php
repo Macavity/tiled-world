@@ -5,35 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateCharactersTable extends Migration
 {
-    var $hp;
-    var $sp;
-    var $add_hp;
-    var $add_sp;
-    var $max_hp;
-    var $max_sp;
-
-    var $str;
-    var $con;
-    var $int;
-    var $agi;
-    var $dex;
-    var $luk;
-    var $sta_mod = array();
-
-    var $st_points,$sk_points;
-    var $add_stp,$add_skp;
-
-    var $item = array();
-    var $skill = array();
-
-    var $quick_slot = array();
-    var $equipment = array();
-
-    var $save;
-    var $location;
-    var $map_state;
-    var $battle_temp;
-
     /**
      * Run the migrations.
      *

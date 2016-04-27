@@ -1,57 +1,128 @@
 <?php namespace Modules\Character\Entities;
 
+use DB;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 
+define('JOB_NOVICE', 0);
+define('JOB_SWORDMAN', 1);
+define('JOB_ARCHER', 2);
+define('JOB_THIEF', 3);
+define('JOB_ACOLYTE', 4);
+define('JOB_MERCHANT', 5);
+define('JOB_MAGE', 6);
+
+//"Knight","Hunter","Assassin","Priest","Blacksmith","Wizard",  // bis 12
+//"Crusader","Bard","Rogue","Monk","Alchemist","Sage","Super Novice","Dancer",          // bis 20
+
+/**
+ * Class Character
+ * @package Modules\Character\Entities
+ *
+ * @property integer id
+ * @property integer gender
+ * @property integer job
+ * @property integer hair_color
+ * @property integer hair_style
+ *
+ * @property integer health_points
+ * @property integer special_points
+ *
+ * @property integer base_level
+ * @property integer job_level
+ *
+ * @property integer base_exp
+ * @property integer job_exp
+ *
+ * @property integer str
+ * @property integer con
+ * @property integer agi
+ * @property integer dex
+ * @property integer luk
+ * @property integer int
+ *
+ * @property integer rank_points
+ *
+ */
 class Character extends Model
 {
-    private $name;
-    private $gender;
-    private $job;
-    private $hair_color;
-    private $hair_style;
+    var $hp;
+    var $sp;
+    var $add_hp;
+    var $add_sp;
+    var $max_hp;
+    var $max_sp;
+
+    var $sta_mod = array();
+
+    var $st_points,$sk_points;
+    var $add_stp,$add_skp;
+
+    var $item = array();
+    var $skill = array();
+
+    var $quick_slot = array();
+
+    var $save;
+    var $location;
+    var $map_state;
+    var $battle_temp;
+
 
     protected $fillable = ["name", "gender", "job", "hair_color", "hair_style"];
 
+    public function equipmentSets(){
+        return $this->hasMany(EquipmentSet::class);
+    }
+
+    private function getImageHeadPath(){
+        return "images/avatars/".$this->id.".head.png";
+    }
+
+    private function getImageFullPath(){
+        return "images/avatars/".$this->id.".png";
+    }
+
     public function getImageHead(){
 
+        $image = public_path($this->getImageHeadPath());
+
+        if(!file_exists($image)){
+            $this->generateAvatarHeadImage($this->gender, $this->hair_style, $this->hair_color);
+        }
+
+        return $image;
     }
 
     public function user(){
         $this->belongsTo(User::class);
     }
 
-    public function generateAvatarHeadImage (Character $char, $equip)
-    {
-        $pos = '00000';
+    public function generateAvatarHeadImage ($gender, $hairStyle, $hairColor = "0", $pos = '00000') {
 
-        $imagefile = "images/avatars/%s_head.png";
+        $str_hair = base_path('public/images/hair/%s/%s_%s.png');
+        $str_mask = base_path('public/images/hair/%s/%s_%s_mask.png');
 
-        $hstyle = $char->hair_style;
-        $hcolor = $char->hair_color;
+        $gender = ($this->gender == 0) ? 'm' : 'f';
 
-        $str_hair = 'rpg/classes/hair/%s/%s_%s.png';
-        $str_mask = 'rpg/classes/hair/%s/%s_%s_mask.png';
-        $str_gear = 'rpg/headgear/%s_%s.png';
+        $hairSource = sprintf($str_hair, $gender, $hairStyle, $pos);
+        $maskSource = sprintf($str_mask, $gender, $hairStyle, $pos);
 
-        $hair = sprintf($str_hair, $char->gender, $char->hair_style, $pos);
-        $mask = sprintf($str_mask, $char->gender, $char->hair_style, $pos);
-
-        if(!file_exists($hair)){
-            throw new \Exception("Hair style base file missing.");
+        if(!file_exists($hairSource)){
+            throw new \Exception("Hair style base $hairSource file missing.");
         }
-        if(!file_exists($mask)){
-            throw new \Exception("Hair style mask file missing.");
+        if(!file_exists($maskSource)){
+            throw new \Exception("Hair style mask $maskSource file missing.");
         }
 
-        $hairImg = ImageCreateFromPNG($hair);
-        $hairMask = ImageCreateFromPNG($mask);
+        $hairImg = ImageCreateFromPNG($hairSource);
+        $hairMask = ImageCreateFromPNG($maskSource);
 
         // Color the Hair if needed (#FF0000)
-        if (strlen($char->hair_color) === 6) {
+        if (strlen($hairColor) === 6) {
 
             // Convert #FF0000 to seperate RGB Values
-            $dye = $this->hex2int($hcolor);
+            $dye = $this->hex2int($hairColor);
             $dye['red'] = $dye['r'];
             $dye['green'] = $dye['g'];
             $dye['blue'] = $dye['b'];
@@ -82,9 +153,9 @@ class Character extends Model
                     $f = imagecolorsforindex($hairImg, $pos);
 
                     $posM = imagecolorat($hairMask, $i, $j);
-                    $mask = imagecolorsforindex($hairMask, $posM);
+                    $maskSource = imagecolorsforindex($hairMask, $posM);
 
-                    if ($mask['red'] == 0 && $mask['green'] == 0 && $mask['blue'] == 0) {
+                    if ($maskSource['red'] == 0 && $maskSource['green'] == 0 && $maskSource['blue'] == 0) {
                         if ($f['red'] <= 127) {
                             $new_color = $this->multiPlus($f, $dye);
                         } elseif ($f['red'] > 127) {
@@ -107,20 +178,37 @@ class Character extends Model
         $origHair_w = ImageSX($hairImg);
         $origHair_h = ImageSY($hairImg);
 
-        //
-        $eq[0] = $equip[0];
-        $eq[1] = $equip[1];
-        $eq[2] = $equip[9];
+        $this->getHeadgearImageData();
+
+        $x = floor($hair_w / 2);
+        $y = floor($hair_h / 2);
+
+        ImagePNG($hairImg, $this->getImageHeadPath(), 0);
+
+        // Aufraeumen
+        ImageDestroy($hairImg);
+
+    }
+
+    private function getHeadgearImageData(){
+
+        $str_gear = base_path('public/images/headgear/%s_%s.png');
+
+        $equip = array();
+
         $counter = 0;
         $bool_gear = false;
         $last_l = 0;
         $last_t = 0;
-        foreach ($eq as $e) {
+        foreach ($equip as $e) {
             $counter++;
-            $sql = "SELECT * FROM {$table_prefix}rpg_image_positions WHERE type='gear' AND type2='$e'";
-            $result = $db->sql_query($sql);
-            if ($db->sql_numrows($result) > 0) {
-                $gearRow = $db->sql_fetchrow($result);
+
+            $gearRow = DB::table('rpg_image_positions')->where([
+                ['type', 'gear'],
+                ['type2', $e],
+            ])->get();
+
+            if ($gearRow) {
                 $gear = sprintf($str_gear, $e, '00000');
                 if (file_exists($gear)) {
                     $gearImg = ImageCreateFromPNG($gear);
@@ -130,6 +218,7 @@ class Character extends Model
                     $gear_w = ImageSX($gearImg);
                     $gear_h = ImageSY($gearImg);
 
+                    /*
                     $sql = "SELECT * FROM {$table_prefix}rpg_image_positions
 						WHERE type='head2gear' AND gender='$gender' AND type2=$hstyle";
                     $result = $db->sql_query($sql);
@@ -178,35 +267,17 @@ class Character extends Model
 
                     ImagePNG($hairImg, 'images/avatars/test_' . $e, 100) or $die .= 'Fehler X03';
                     //echo ' <img src="images/avatars/test_'.$e.'" border="1"> ';
-                } else {
-                    $die .= 'gearImg not found' . $gear;
+                    */
+                    if ($bool_gear) {
+                        ImageDestroy($gearImg);
+                    }
                 }
             }
         }
-
-        $x = floor($hair_w / 2);
-        $y = floor($hair_h / 2);
-
-        $imagefile = ($bool_admin)
-            ? sprintf($imagefile, 'admin_' . $char['save_id'])
-            : sprintf($imagefile, 'chara_' . $char['save_id']);
-
-        ImagePNG($hairImg, $imagefile, 100) or $die .= 'Fehler X03';
-
-        // Aufraeumen
-        ImageDestroy($hairImg);
-
-        if ($gear) {
-            ImageDestroy($gearImg);
-        }
-        return '<img src="' . $imagefile . '" border="1">' . $die . $adm_info;
     }
 
     public function generateAvatarImage ($char, $gender, $pos = '00000', $bool_admin = false){
             global $db, $table_prefix, $equip, $debug;
-            $imagefile = ($bool_admin) ? "../images/avatars/%s.png" : "images/avatars/%s.png";
-
-            genHeadImage($char, $gender, $equip, $bool_admin);
 
             $char_name = $char['char_name'];
             $job = $char['char_job'];
@@ -223,16 +294,16 @@ class Character extends Model
             $hair = sprintf($str_hair, $gender, $hstyle, $pos);
             $mask = sprintf($str_mask, $gender, $hstyle, $pos);
             $body = sprintf($str_bg, $job, $job, $gender, $pos);
-            $head = sprintf($str_head, $char['save_id']);
+            $head = $this->getImageHeadPath();
 
-            $hairImg = (file_exists($hair)) ? ImageCreateFromPNG($hair) : $die .= 'Keine Frisur ausgesucht';
-            $bodyImg = (file_exists($body)) ? ImageCreateFromPNG($body) : $die .= '<br>Keine Klasse ausgesucht';
+            $hairImg = ImageCreateFromPNG($hair);
+            $bodyImg = ImageCreateFromPNG($body);
+            $hairMask = ImageCreateFromPNG($mask);
 
             // Color the Hair if needed
             if (file_exists($mask)) {
 
                 if (strlen($hcolor) == 6 && file_exists($hair)) {            // consists of exactly 6 digits
-                    $hairMask = (file_exists($mask)) ? ImageCreateFromPNG($mask) : $die .= '<br>failed to create Hair Mask';
 
                     $dye = $this->hex2int($hcolor);
                     $dye['red'] = $dye['r'];
@@ -286,20 +357,14 @@ class Character extends Model
                         }
                     }
                 }
-            }    // End If file_exists($mask)
-            else {
-                $adm_info .= '<br>nm' . $gender . $hstyle;
             }
-
-
-            if ($die) return $die;
 
             $hair_w = ImageSX($hairImg);
             $hair_h = ImageSY($hairImg);
             $body_w = ImageSX($bodyImg);
             $body_h = ImageSY($bodyImg);
             //
-            $e = $equip[0];
+            $e = $equip[EQUIP_FACE_1];
             if ($e > 500) {
                 $sql = "SELECT * FROM {$table_prefix}rpg_image_positions WHERE type='gear' AND type2='$e'";
                 $result = $db->sql_query($sql);
@@ -411,7 +476,7 @@ class Character extends Model
             //$h_top = 8;
             //$h_left = 5;
 
-            $imagefile = sprintf($imagefile, 'chara_' . $char['save_id']);
+            $imagefile = sprintf($this->getImageFullPath(), 'chara_' . $char['save_id']);
 
             ImageCopyMerge($compilation, $bodyImg, 0, $hair_h, 0, 0, $body_w, $body_h, 100);
             ImageCopyMerge($compilation, $hairImg, 0 + $h_left, 0 + $h_top, 0, 0, $hair_w, $hair_h, 100);
@@ -434,8 +499,6 @@ class Character extends Model
             ImageDestroy($bodyImg);
             ImageDestroy($hairImg);
             ImageDestroy($compilation);
-
-            return '<img src="' . $imagefile . '" border=0><br>' . $die . $adm_info;
 
     }
 

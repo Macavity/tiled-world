@@ -19,7 +19,7 @@
     <tbody>
       @foreach($characters as $char)
       <tr>
-        <td><img src="{{$char->image}}"></td>
+        <td><img src="{{$char->getImageHead()}}"></td>
         <td>{{$char->name}}</td>
         <td>
           <a class="btn btn-success" href="{{ url("/char/activate/".$char->id) }}"><i class="glyphicon glyphicon-pushpin"></i> Aktivieren</a>
