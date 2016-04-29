@@ -15,9 +15,10 @@ class CharacterController extends Controller {
 
     public function __construct(CharacterRepository $characterRespository)
     {
+        $this->middleware('auth');
+
         $this->characters = $characterRespository;
 
-        $this->middleware('auth');
     }
 
     /**

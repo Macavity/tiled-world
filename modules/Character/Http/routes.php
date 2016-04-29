@@ -7,12 +7,11 @@ Route::group(['middleware' => 'web', 'prefix' => 'char', 'namespace' => 'Modules
     // Create new Character process
     Route::post('/', 'CharacterController@store');
     // Delete a character
-    Route::delete('/delete/{char}', 'CharacterController@destroy')
-        ->where('char', '[0-9]+');
+    Route::delete('/delete/{character}', 'CharacterController@destroy');
 
     // View a single character
-    Route::get('/view/{char}', 'CharacterController@view')
-        ->where('char', '[0-9]+');
+    Route::get('/view/{character}', 'CharacterController@view');
+
 
     // Create new Character Form
     Route::get('/create', 'CharacterController@create');
@@ -24,10 +23,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'char', 'namespace' => 'Modules
 
 
     // Detail views of a Character
-	Route::get('/view/{char}/skills', 'CharacterController@skills')
-        ->where('char', '[0-9]+');
-	Route::get('/view/{char}/inventory', 'CharacterController@inventory')
-        ->where('char', '[0-9]+');
-	Route::get('/view/{char}/equipment', 'CharacterController@equipment')
-        ->where('char', '[0-9]+');
+	Route::get('/view/{character}/skills', 'CharacterController@skills');
+	Route::get('/view/{character}/inventory', 'CharacterController@inventory');
+	Route::get('/view/{character}/equipment', 'CharacterController@equipment');
 });

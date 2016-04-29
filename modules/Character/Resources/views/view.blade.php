@@ -2,7 +2,7 @@
 
 @section('module_content')
 	
-	<h1>Your Character</h1>
+	<h1>{{trans("character::edit.title")}}</h1>
 	
 	<div>
 		<form action="" method="post">
