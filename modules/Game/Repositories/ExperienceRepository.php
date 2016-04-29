@@ -4,7 +4,7 @@ namespace Modules\Game\Repositories;
 
 use Modules\Character\Entities\Character;
 
-class Experience {
+class ExperienceRepository {
 
     private $baseExperience = [
         9, 22, 42, 68, 103, 144, 194, 251, 316, 390,            // bis 10  (02-11)

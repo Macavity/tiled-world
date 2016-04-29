@@ -1,35 +1,41 @@
 @extends('character::layouts.master')
 
 @section('module_content')
-	
 	<h1>{{trans("character::view.title")}}</h1>
-	
+
+  <h2>{{$character->name}}</h2>
+
 	<div>
-		<form action="{{route("character_update")}}" method="post">
-			<input type="hidden" name="phase" value="{PHASE}">
-			<input type="hidden" name="post_sql" value="{POST_SQL}">
-			<a name="title"></a>
+		<form action="{{route("character_update", compact('character'))}}" method="post">
+			{!! csrf_field() !!}
+
+      @if($baseLevelUp)
+        <div class="alert alert-info" role="alert">
+          {{trans('game.LEVELUP')}}
+        </div>
+      @endif
+
+      @if($jobLevelUp)
+        <div class="alert alert-info" role="alert">
+          {{trans('game.LEVELUP')}}
+        </div>
+      @endif
+
 			<table width="100%" border="0" cellpadding="0" cellspacing="1" class="forumline">
-				<tr>
-					<th colspan="5" class="thHead"><strong>{{$name}}</strong></th>
-				</tr>
-				<tr>
-					<td colspan="5" height="1" class="spaceRow"><img src="templates/subSilver/images/spacer.gif" width="1" height="1" /></td>
-				</tr>
 				<tr class="genmed">
-					<td colspan="5" class="row1">{L_LVL} : {LEVEL} , {CLASS}</td>
+					<td colspan="5" class="row1">{{trans('game.LVL')}} : {{$character->level}}} , {{$character->getClassName()}}</td>
 				</tr>
-				{L_REBIRTH}
 				<tr class="genmed">
 					<td colspan="5" class="row1">&nbsp;{INFO}</td>
 				</tr>
 				<tr>
-					<td colspan="4" class="row1" valign="top">{LVLUP}{CLASSUP}{STATUS} </td>
-					<td align="right" class="row1" valign="top"><img src="rpg/images/notiz.gif" alt="{INF_DEBUG}" title="{INF_DEBUG}" width="15" height="14"></td>
+					<td colspan="5" class="row1" valign="top">
+            {STATUS}
+          </td>
 				</tr>
 				<tr class="genmed">
 					<td class="row1">Name:</td>
-					<td colspan="2" class="row2">{NAME2}</td>
+					<td colspan="2" class="row2"><strong>{{$character->name}}</strong></td>
 					<td colspan="2" class="row1">&nbsp;</td>
 				</tr>
 				<tr class="genmed">
@@ -38,84 +44,84 @@
 					<td colspan="2" class="row1">&nbsp;</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_STR}</td>
-					<td class="row2"> {STR}</td>
+					<td class="row1">{{trans('game.STR')}}</td>
+					<td class="row2">{{$character->str}}</td>
 					<td class="row2">{STATUP_STR}</td>
-					<td class="row1">{L_HP}</td>
-					<td class="row2">{HP}</td>
+					<td class="row1">{{trans('game.HP')}}</td>
+					<td class="row2">{{$character->health_points}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_CON}</td>
-					<td class="row2">{CON} </td>
+					<td class="row1">{{trans('game.CON')}}</td>
+					<td class="row2">{{$character->con}} </td>
 					<td class="row2">{STATUP_CON}</td>
-					<td class="row1">{L_SP}</td>
-					<td class="row2">{SP}</td>
+					<td class="row1">{{trans('game.SP')}}</td>
+					<td class="row2">{{$character->special_points}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_INT}</td>
-					<td class="row2">{INT} </td>
+					<td class="row1">{{trans('game.INT')}}</td>
+					<td class="row2">{{$character->int}} </td>
 					<td class="row2">{STATUP_INT}</td>
-					<td class="row1">{L_ATK}</td>
-					<td class="row2">{ATK}</td>
+					<td class="row1">{{trans('game.ATK')}}</td>
+					<td class="row2">{{$character->attackPoints()}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_DEX}</td>
-					<td class="row2">{DEX} </td>
+					<td class="row1">{{trans('game.DEX')}}</td>
+					<td class="row2">{{$character->dex}} </td>
 					<td class="row2">{STATUP_DEX}</td>
-					<td class="row1">{L_DEF}</td>
-					<td class="row2">{DEF}</td>
+					<td class="row1">{{trans('game.DEF')}}</td>
+					<td class="row2">{{$character->defensePoints()}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_AGI}</td>
-					<td class="row2"> {AGI}</td>
+					<td class="row1">{{trans('game.AGI')}}</td>
+					<td class="row2">{{$character->agi}}</td>
 					<td class="row2">{STATUP_AGI}</td>
-					<td class="row1">{L_DAM}</td>
-					<td class="row2">{DAM}</td>
+					<td class="row1">{{trans('game.DAM')}}</td>
+					<td class="row2">{{$character->damagePoints()}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_LUK}</td>
-					<td class="row2"> {LUK}</td>
+					<td class="row1">{{trans('game.LUK')}}</td>
+					<td class="row2">{{$character->luk}}</td>
 					<td class="row2">{STATUP_LUK}</td>
-					<td class="row1">{L_MATK}</td>
-					<td class="row2">{MATK}</td>
+					<td class="row1">{{trans('game.MATK')}}</td>
+					<td class="row2">{{$character->magicAttackPoints()}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_SPEED}</td>
-					<td class="row2">{SPEED}</td>
+					<td class="row1">{{trans('game.SPEED')}}</td>
+					<td class="row2">{{$character->speed}}</td>
 					<td class="row2">&nbsp; </td>
-					<td class="row1">{L_MDEF}</td>
-					<td class="row2">{MDEF}</td>
+					<td class="row1">{{trans('game.MDEF')}}</td>
+					<td class="row2">{{$character->magicDefensePoints()}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_HIT}</td>
-					<td class="row2">{HIT}</td>
+					<td class="row1">{{trans('game.HIT')}}</td>
+					<td class="row2">{{$character->hit}}</td>
 					<td class="row2">&nbsp;</td>
-					<td class="row1">{L_CAST}</td>
-					<td class="row2">{CAST}</td>
+					<td class="row1">{{trans('game.CAST')}}</td>
+					<td class="row2">{{$character->cast}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_FLEE}</td>
-					<td class="row2">{FLEE}</td>
+					<td class="row1">{{trans('game.FLEE')}}</td>
+					<td class="row2">{{$character->flee}}</td>
 					<td class="row2">&nbsp;</td>
-					<td class="row1">{L_CRIT}</td>
-					<td class="row2">{CRIT}</td>
+					<td class="row1">{{trans('game.CRIT')}}</td>
+					<td class="row2">{{$character->crit}}</td>
 				</tr>
 				<tr class="genmed">
 					<td colspan="5" class="row1">&nbsp;</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_STPOINTS}</td>
-					<td class="row2">{STP}</td>
+					<td class="row1">{{trans('game.STPOINTS')}}</td>
+					<td class="row2">{{$character->statPoints()}}</td>
 					<td class="row2">&nbsp;</td>
-					<td class="row1">{L_EXP}</td>
-					<td class="row2">{EXP}</td>
+					<td class="row1">{{trans('game.EXP')}}</td>
+					<td class="row2">{{$character->base_exp}}</td>
 				</tr>
 				<tr class="genmed">
-					<td class="row1">{L_SKPOINTS}</td>
-					<td class="row2">{SKP}</td>
+					<td class="row1">{{trans('game.SKPOINTS')}}</td>
+					<td class="row2">{{$character->skillPoints()}}</td>
 					<td class="row2">&nbsp;</td>
-					<td class="row1">{L_JEXP}</td>
-					<td class="row2">{JEXP}</td>
+					<td class="row1">{{trans('game.JEXP')}}</td>
+					<td class="row2">{{$character->job_exp}}</td>
 				</tr>
 				<tr class="genmed">
 					<td colspan="4" class="row1">&nbsp;</td>

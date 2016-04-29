@@ -15,18 +15,22 @@
     </tr>
     </thead>
     <tbody>
-      @foreach($characters as $char)
+      @foreach($characters as $character)
       <tr>
-        <td><img src="{{$char->getImageHead()}}"></td>
-        <td>{{$char->name}}</td>
         <td>
-          <a class="btn btn-success" href="{{ url("/char/activate/".$char->id) }}"><i class="glyphicon glyphicon-pushpin"></i> Aktivieren</a>
+          <a href="{{route("character_view", compact('character'))}}">
+            <img src="{{$character->getImageHead()}}">
+          </a>
+        </td>
+        <td>{{$character->name}}</td>
+        <td>
+          <a class="btn btn-success" href="{{ url("/char/activate/".$character->id) }}"><i class="glyphicon glyphicon-pushpin"></i> Aktivieren</a>
         </td>
         <td>
-          <form action="{{ url('char/delete/'.$char->id) }}" method="POST">
+          <form action="{{ url('char/delete/'.$character->id) }}" method="POST">
             {!! csrf_field() !!}
             {!! method_field('DELETE') !!}
-            <button type="submit" id="delete-task-{{ $char->id }}" class="btn btn-danger">
+            <button type="submit" id="delete-task-{{ $character->id }}" class="btn btn-danger">
               <i class="fa fa-btn fa-trash"></i> Löschen
             </button>
           </form>

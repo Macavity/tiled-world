@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Character\Entities\Character;
+use Modules\Game\Repositories\ExperienceRepository;
 use Pingpong\Modules\Routing\Controller;
 use Modules\Character\Repositories\CharacterRepository;
 
@@ -13,11 +14,17 @@ class CharacterController extends Controller {
      */
     protected $characters;
 
-    public function __construct(CharacterRepository $characterRespository)
+    /**
+     * @var ExperienceRepository
+     */
+    private $experience;
+
+    public function __construct(CharacterRepository $characterRepository, ExperienceRepository $experienceRepository)
     {
         $this->middleware('auth');
 
-        $this->characters = $characterRespository;
+        $this->characters = $characterRepository;
+        $this->experience = $experienceRepository;
 
     }
 
@@ -33,8 +40,8 @@ class CharacterController extends Controller {
         ));
 	}
 
-    public function create(){
-
+    public function create()
+    {
         $maleHairStyles =   array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20);
         $femaleHairStyles = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20);
 
@@ -45,7 +52,8 @@ class CharacterController extends Controller {
         ));
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         // @TODO Character:store - Strengthen validation
         $this->validate($request,[
             'name' => 'required|max:255',
@@ -102,8 +110,22 @@ class CharacterController extends Controller {
         return redirect('/char');
     }
 
-    public function view(){
-        return view('character::view');
+    public function view(Character $character){
+
+        $this->authorize('view', $character);
+
+        $nextBaseExp = $this->experience->nextBaseExpForChar($character);
+        $nextJobExp = $this->experience->nextJobExpForChar($character);
+
+        // LevelUP ?
+        $baseLevelUp = ($nextBaseExp > 0 && $character->base_exp >= $nextBaseExp);
+        $jobLevelUp = ($nextJobExp > 0 && $character->job_exp >= $nextJobExp);
+
+        return view('character::view', compact(
+            'character',
+            'baseLevelUp',
+            'jobLevelUp'
+        ));
     }
 
 	public function skills(){

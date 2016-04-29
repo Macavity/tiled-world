@@ -109,7 +109,7 @@
         <td>
           <table width="100%" border="0" cellpadding="2" cellspacing="1" border="0">
             <tr>
-              <th class="thHead" colspan="6"><strong>{L_TITLE}</strong></th>
+              <th class="thHead" colspan="6"><strong>{{trans('game.TITLE')}}</strong></th>
             </tr>
             <tr>
               <td colspan="6" height="1" class="row1"><img src="templates/subSilver/images/spacer.gif" width="1" height="1" /></td>
@@ -118,43 +118,43 @@
               <td width="52%" class="row2">
                 <table width="100%" border="0">
                   <tr class="genmed">
-                    <td class="row1">{L_STR}:</td>
+                    <td class="row1">{{trans('game.STR')}}:</td>
                     <td class="row2">{STR}</td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_CON}:</td>
+                    <td class="row1">{{trans('game.CON')}}:</td>
                     <td class="row2">{CON}</td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_INT}: </td>
+                    <td class="row1">{{trans('game.INT')}}: </td>
                     <td class="row2">{INT}</td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_DEX}: </td>
+                    <td class="row1">{{trans('game.DEX')}}: </td>
                     <td class="row2">{DEX}</td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_AGI}: </td>
+                    <td class="row1">{{trans('game.AGI')}}: </td>
                     <td class="row2">{AGI}</td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_LUK}:</td>
+                    <td class="row1">{{trans('game.LUK')}}:</td>
                     <td class="row2"> {LUK}</td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1"> {L_LEVEL} {LEVEL} {CLASS} </td>
+                    <td class="row1"> {{trans('game.LEVEL')}} {LEVEL} {CLASS} </td>
                     <td class="row2"></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_HP}</td>
+                    <td class="row1">{{trans('game.HP')}}</td>
                     <td class="row2"> {HP} </td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_SP}</td>
+                    <td class="row1">{{trans('game.SP')}}</td>
                     <td class="row2"> {SP} </td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1"> {L_LOCATION}: {LOC} </td>
+                    <td class="row1"> {{trans('game.LOCATION')}}: {LOC} </td>
                     <td class="row2">{LOC}</td>
                   </tr>
                   <tr>
@@ -171,14 +171,14 @@
               <td width="48%" align="right" valign="top" class="row1">
                 <table align="right" width="100%" border="0" cellspacing="1">
                   <tr class="genmed">
-                    <td class="row1">{L_HELMS}</td>
+                    <td class="row1">{{trans('game.HELMS')}}</td>
                     <td class="row2"><span class="genmed"><select name="face1" id="face1" onChange="equip_change();" class="item">
                           <option value="0" class="genmed">- None -</option>
                           {O_FACE1}
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_FACE}</td>
+                    <td class="row1">{{trans('game.FACE')}}</td>
                     <td class="row2"><span class="genmed"><select name="face2" id="face2" onChange="equip_change();">
                           <option value="0" class="genmed">- None -</option>
                           {O_FACE2}
@@ -192,28 +192,28 @@
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_BREAST}</td>
+                    <td class="row1">{{trans('game.BREAST')}}</td>
                     <td class="row2"><span class="genmed"><select name="armour" id="armour" onChange="equip_change();">
                           <option value="0" class="genmed">- None -</option>
                           {O_BREAST}
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_GARMENT}</td>
+                    <td class="row1">{{trans('game.GARMENT')}}</td>
                     <td class="row2"><span class="genmed"><select name="garment" id="garment" onChange="equip_change();">
                           <option value="0" class="genmed">- None -</option>
                           {O_GARMENT}
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_SHOES}</td>
+                    <td class="row1">{{trans('game.SHOES')}}</td>
                     <td class="row2"><span class="genmed"><select name="shoes" id="shoes" onChange="equip_change();">
                           <option value="0" class="genmed">- None -</option>
                           {O_SHOES}
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_ACC}</td>
+                    <td class="row1">{{trans('game.ACC')}}</td>
                     <td class="row2"><span class="genmed"><select name="acc1" id="acc1" onChange="equip_change();">
                           <option value="0" class="genmed">- None -</option>
                           {O_ACC1}
@@ -227,14 +227,14 @@
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_RH}</td>
+                    <td class="row1">{{trans('game.RH')}}</td>
                     <td class="row2"><span class="genmed"><select name="r_hand" id="r_hand" onChange="equip_change();">
                           <option value="0" class="genmed">Bare Hands</option>
                           {O_WEAPONS}
                         </select></span></td>
                   </tr>
                   <tr class="genmed">
-                    <td class="row1">{L_LH}</td>
+                    <td class="row1">{{trans('game.LH')}}</td>
                     <td class="row2"><span class="genmed"><select name="l_hand" id="l_hand" onChange="equip_change();">
                           <option value="0" class="genmed">- None -</option>
                           {O_SHIELDS}
@@ -268,7 +268,7 @@
               </td>
             </tr>
             <tr>
-              <td colspan="2" class="row2"><div align="center">{L_COPYRIGHT}</div></td>
+              <td colspan="2" class="row2"><div align="center">{{trans('game.COPYRIGHT')}}</div></td>
             </tr>
           </table>
         </td>

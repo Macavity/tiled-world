@@ -15,12 +15,13 @@ return [
     'lpg_auto_inn_explanation' => 'Wenn deine HP unter den angegebenen Wert in Prozent fallen, gehst du automatisch in das nächste Gasthaus.<br>Werte zwischen 0 und 99.',
     
     // Jobnames
-    'aco' => "Messdiener",
-    'arc' => "Bogensch&uuml,tze",
-    'mag' => "Magier",
-    'swd' => "Schwertk&auml,mpfer",
-    'thf' => "Dieb",
-    
+    'JOB_ACOLYTE' => "Messdiener",
+    'JOB_ARCHER' => "Bogenschütze",
+    'JOB_MAGE' => "Magier",
+    'JOB_SWORDMAN' => "Schwertkämpfer",
+    'JOB_THIEF' => "Dieb",
+    'JOB_MERCHANT' => 'Händler',
+
     // General Labels
     'PLAYER' => "Spieler",
     'LVL' => "Level",

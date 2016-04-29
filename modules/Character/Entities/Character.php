@@ -61,8 +61,34 @@ class Character extends Model
 
     protected $fillable = ["name", "gender", "job", "hair_color", "hair_style"];
 
+    public function user(){
+        $this->belongsTo(User::class);
+    }
+
     public function equipmentSets(){
         return $this->hasMany(EquipmentSet::class);
+    }
+
+    public function getClassName(){
+
+        switch($this->job){
+            case JOB_NOVICE:
+                return trans('game.JOB_NOVICE');
+            case JOB_SWORDMAN:
+                return trans('game.JOB_SWORDMAN');
+            case JOB_ARCHER:
+                return trans('game.JOB_ARCHER');
+            case JOB_THIEF:
+                return trans('game.JOB_THIEF');
+            case JOB_ACOLYTE:
+                return trans('game.JOB_ACOLYTE');
+            case JOB_MERCHANT:
+                return trans('game.JOB_MERCHANT');
+            case JOB_MAGE:
+                return trans('game.JOB_MAGE');
+            default:
+                return "";
+        }
     }
 
     private function getImageHeadPath(){
@@ -84,9 +110,17 @@ class Character extends Model
         return asset($this->getImageHeadPath());
     }
 
-    public function user(){
-        $this->belongsTo(User::class);
+    public function getImageFull(){
+        $image = public_path($this->getImageFullPath());
+
+        if(!file_exists($image)){
+            $this->generateAvatarImage($this);
+        }
+
+        return asset($this->getImageFullPath());
+
     }
+
 
     public function generateAvatarHeadImage ($gender, $hairStyle, $hairColor = "0", $pos = '00000') {
 
@@ -266,23 +300,13 @@ class Character extends Model
         }
     }
 
-    public function generateAvatarImage ($char, $gender, $pos = '00000', $bool_admin = false){
+    public function generateAvatarImage (Character $character, $pos = '00000'){
             global $db, $table_prefix, $equip, $debug;
 
-            $char_name = $char['char_name'];
-            $job = $char['char_job'];
-            $hstyle = $char['char_hstyle'];
-            $hcolor = $char['char_hcolor'];
-            //$hcolor = '-1';
+            $job = $character->job;
 
-            $str_hair = ($bool_admin) ? '../rpg/classes/hair/%s/%s_%s.png' : 'rpg/classes/hair/%s/%s_%s.png';
-            $str_mask = ($bool_admin) ? '../rpg/classes/hair/%s/%s_%s_mask.png' : 'rpg/classes/hair/%s/%s_%s_mask.png';
-            $str_gear = ($bool_admin) ? '../rpg/headgear/%s_%s.png' : 'rpg/headgear/%s_%s.png';
-            $str_bg = ($bool_admin) ? '../rpg/classes/body/%s/%s_%s_%s.png' : 'rpg/classes/body/%s/%s_%s_%s.png';
-            $str_head = ($bool_admin) ? '../images/avatars/chara_%s_head.png' : 'images/avatars/chara_%s_head.png';
+            $str_bg = base_path('public/images/classes/body/%s/%s_%s_%s.png');
 
-            $hair = sprintf($str_hair, $gender, $hstyle, $pos);
-            $mask = sprintf($str_mask, $gender, $hstyle, $pos);
             $body = sprintf($str_bg, $job, $job, $gender, $pos);
             $head = $this->getImageHeadPath();
 

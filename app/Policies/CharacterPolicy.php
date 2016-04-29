@@ -29,4 +29,15 @@ class CharacterPolicy
     public function destroy(User $user, Character $character){
         return ($user->id === $character->user_id);
     }
+
+    /**
+     * Determine if a user can delete a character
+     *
+     * @param User $user
+     * @param Character $character
+     * @return bool
+     */
+    public function view(User $user, Character $character){
+        return ($user->id === $character->user_id);
+    }
 }

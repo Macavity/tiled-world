@@ -16,11 +16,12 @@ return [
     'lpg_auto_inn_explanation' => 'Rest automatically when your HP drop below the set value in percent.<br>Valid values between 0 and 99.',
 
     // Jobnames
-    'aco' => "Acolyte",
-    'arc' => "Archer",
-    'mag' => "Mage",
-    'swd' => "Swordman",
-    'thf' => "Thief",
+    'JOB_ACOLYTE' => "Acolyte",
+    'JOB_ARCHER' => "Archer",
+    'JOB_MAGE' => "Mage",
+    'JOB_SWORDMAN' => "Swordman",
+    'JOB_THIEF' => "Thief",
+    'JOB_MERCHANT' => 'Merchant',
 
     // General Labels
     'PLAYER' => "Player",

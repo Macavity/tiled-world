@@ -10,20 +10,20 @@
 
         <td width="52%"><table width="100%" border="0" cellpadding="2" cellspacing="1">
             <tr>
-              <th class="thHead"><strong>{L_PLAYER} {NAME}</strong></th>
+              <th class="thHead"><strong>{{trans('game.PLAYER')}} {NAME}</strong></th>
             </tr>
             <tr>
               <td height="1" class="spaceRow"><img src="templates/subSilver/images/spacer.gif" width="1" height="1" /></td>
             </tr>
             <tr class="genmed">
-              <td class="row1">{L_LVL} : {LEVEL} , {CLASS}</td>
+              <td class="row1">{{trans('game.LVL')}} : {LEVEL} , {CLASS}</td>
             </tr>
-            {L_REBIRTH}
+            {{trans('game.REBIRTH')}}
             <tr class="genmed">
               <td class="row1">{INFO}</td>
             </tr>
             <tr class="genmed">
-              <td class="row1">{L_SKPOINTS} {SKP}</td>
+              <td class="row1">{{trans('game.SKPOINTS')}} {SKP}</td>
             </tr>
             <tr class="genmed">
               <td class="row1">&nbsp;</td>
@@ -31,7 +31,7 @@
             <tr class="genmed">
               <td class="row1"> <table border="0" cellpadding="2" cellspacing="1">
                   <tr class="genmed">
-                    <td colspan="4"><b>{L_SKILLS}</b></td>
+                    <td colspan="4"><b>{{trans('game.SKILLS')}}</b></td>
                   </tr>
                   {SKILLS} </table></td>
             </tr>

@@ -96,7 +96,7 @@
   <!-- BEGIN CharaInfo -->
   <table width="99%" cellpadding="4" cellspacing="0" border="0" align="center" class="forumline">
     <tr>
-      <th class="thHead" colspan="{SHOPTABLEROWS}">{L_CI_TITLE}</th>
+      <th class="thHead" colspan="{SHOPTABLEROWS}">{{trans('game.CI_TITLE')}}</th>
     </tr>
     <tr>
       <td class="row1" align="center">{CI}</td>
@@ -106,7 +106,7 @@
 
   <table width="99%" cellpadding="4" cellspacing="0" border="0" align="center" class="forumline">
     <tr>
-      <th class="thHead" colspan="{SHOPTABLEROWS}">{L_SHOP_TITLE}</th>
+      <th class="thHead" colspan="{SHOPTABLEROWS}">{{trans('game.SHOP_TITLE')}}</th>
     </tr>
 
     <!-- BEGIN switch_useitems -->
