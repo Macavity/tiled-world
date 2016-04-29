@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Character\Entities\Character;
 use Pingpong\Modules\Routing\Controller;
 use Modules\Character\Repositories\CharacterRepository;
 
@@ -53,13 +54,49 @@ class CharacterController extends Controller {
             'hair-color' => 'required',
         ]);
 
+        $gender = ($request->input('gender') === "male") ? GENDER_MALE : GENDER_FEMALE;
+
+        switch($request->input('job')){
+            case 'arc':
+                $job = JOB_ARCHER; break;
+            case 'thf':
+                $job = JOB_THIEF; break;
+            case 'mer':
+                $job = JOB_MERCHANT; break;
+            case 'mag':
+                $job = JOB_MAGE; break;
+            case 'aco':
+                $job = JOB_ACOLYTE; break;
+            case 'swd':
+                $job = JOB_SWORDMAN; break;
+            default:
+                $job = JOB_NOVICE;
+        }
+
         $request->user()->characters()->create([
             'name' => $request->input('name'),
-            'gender' => $request->input('gender'),
-            'job' => $request->input('job'),
+            'gender' => $gender,
+            'job' => $job,
             'hair_style' => $request->input('hair-style'),
             'hair_color' => $request->input('hair-color'),
         ]);
+
+        return redirect('/char');
+    }
+
+    /**
+     * Delete a character
+     *
+     * @param Request $request
+     * @param Character $char
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function destroy(Request $request, Character $char){
+
+        // Check authorization to delete this character
+        $this->authorize('destroy', $char);
+
+        $char->delete();
 
         return redirect('/char');
     }

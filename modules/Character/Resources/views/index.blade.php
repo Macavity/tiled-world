@@ -2,10 +2,8 @@
 
 @section('module_content')
 
-  <a href="{{ url('char/create') }}">Neuen Charakter erstellen</a>
-
-  <h1>{{ trans('character.switch-character') }}</h1>
-  <p>{{ trans('character.switch-description') }}}</p>
+  <h1>{{ trans('character::character.switch-character') }}</h1>
+  <p>{{ trans('character::character.switch-description') }}</p>
 
   @if(count($characters) > 0)
   <table class="table table-striped">
@@ -23,11 +21,22 @@
         <td>{{$char->name}}</td>
         <td>
           <a class="btn btn-success" href="{{ url("/char/activate/".$char->id) }}"><i class="glyphicon glyphicon-pushpin"></i> Aktivieren</a>
-          <a class="btn btn-danger" href="{{ url("/char/delete/".$char->id) }}"><i class="glyphicon glyphicon-trash"></i> Löschen</a>
+        </td>
+        <td>
+          <form action="{{ url('char/delete/'.$char->id) }}" method="POST">
+            {!! csrf_field() !!}
+            {!! method_field('DELETE') !!}
+            <button type="submit" id="delete-task-{{ $char->id }}" class="btn btn-danger">
+              <i class="fa fa-btn fa-trash"></i> Löschen
+            </button>
+          </form>
         </td>
       </tr>
       @endforeach
     </tbody>
   </table>
   @endif
+
+  <a href="{{ url('char/create') }}" class="btn btn-default">Neuen Charakter erstellen</a>
+
 @stop

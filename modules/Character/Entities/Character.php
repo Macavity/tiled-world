@@ -4,22 +4,12 @@ use DB;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 
-define('JOB_NOVICE', 0);
-define('JOB_SWORDMAN', 1);
-define('JOB_ARCHER', 2);
-define('JOB_THIEF', 3);
-define('JOB_ACOLYTE', 4);
-define('JOB_MERCHANT', 5);
-define('JOB_MAGE', 6);
-
-//"Knight","Hunter","Assassin","Priest","Blacksmith","Wizard",  // bis 12
-//"Crusader","Bard","Rogue","Monk","Alchemist","Sage","Super Novice","Dancer",          // bis 20
-
 /**
  * Class Character
  * @package Modules\Character\Entities
  *
  * @property integer id
+ * @property integer user_id
  * @property integer gender
  * @property integer job
  * @property integer hair_color
@@ -91,7 +81,7 @@ class Character extends Model
             $this->generateAvatarHeadImage($this->gender, $this->hair_style, $this->hair_color);
         }
 
-        return $image;
+        return asset($this->getImageHeadPath());
     }
 
     public function user(){
