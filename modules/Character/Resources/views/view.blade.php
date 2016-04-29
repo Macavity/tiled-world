@@ -2,16 +2,16 @@
 
 @section('module_content')
 	
-	<h1>{{trans("character::edit.title")}}</h1>
+	<h1>{{trans("character::view.title")}}</h1>
 	
 	<div>
-		<form action="" method="post">
+		<form action="{{route("character_update")}}" method="post">
 			<input type="hidden" name="phase" value="{PHASE}">
 			<input type="hidden" name="post_sql" value="{POST_SQL}">
 			<a name="title"></a>
 			<table width="100%" border="0" cellpadding="0" cellspacing="1" class="forumline">
 				<tr>
-					<th colspan="5" class="thHead"><strong>{L_PLAYER} {NAME}</strong></th>
+					<th colspan="5" class="thHead"><strong>{{$name}}</strong></th>
 				</tr>
 				<tr>
 					<td colspan="5" height="1" class="spaceRow"><img src="templates/subSilver/images/spacer.gif" width="1" height="1" /></td>

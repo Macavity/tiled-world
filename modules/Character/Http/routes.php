@@ -10,7 +10,15 @@ Route::group(['middleware' => 'web', 'prefix' => 'char', 'namespace' => 'Modules
     Route::delete('/delete/{character}', 'CharacterController@destroy');
 
     // View a single character
-    Route::get('/view/{character}', 'CharacterController@view');
+    Route::get('/view/{character}', [
+        'as' => 'character_view',
+        'uses' => 'CharacterController@view'
+    ]);
+
+    Route::post('/update/{character}', [
+        'as' => 'character_update',
+        'uses' => 'CharacterController@update'
+    ]);
 
 
     // Create new Character Form
