@@ -157,6 +157,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         'Pingpong\Modules\ModulesServiceProvider',
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
     ],
 
     /*

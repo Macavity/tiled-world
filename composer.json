@@ -7,7 +7,9 @@
     "require": {
         "php": ">=5.5.9",
         "laravel/framework": "5.2.*",
-        "pingpong/modules": "~2.0"
+        "pingpong/modules": "~2.0",
+        "doctrine/dbal": "^2.5",
+        "barryvdh/laravel-ide-helper": "^2.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -42,7 +44,9 @@
             "php artisan optimize"
         ],
         "post-update-cmd": [
+            "php artisan clear-compiled",
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+            "php artisan ide-helper:generate",
             "php artisan optimize"
         ]
     },
