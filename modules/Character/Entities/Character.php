@@ -43,6 +43,12 @@ class Character extends Model
     var $max_hp;
     var $max_sp;
 
+    public $speed = "";
+    public $hit = "";
+    public $cast = "";
+    public $crit = "";
+    public $flee = "";
+
     var $sta_mod = array();
 
     var $st_points,$sk_points;
@@ -57,6 +63,8 @@ class Character extends Model
     var $location;
     var $map_state;
     var $battle_temp;
+
+    private $equipBonus;
 
 
     protected $fillable = ["name", "gender", "job", "hair_color", "hair_style"];
@@ -90,6 +98,523 @@ class Character extends Model
                 return "";
         }
     }
+
+    public function attackPoints()
+    {
+        $bonusAttack = 0;
+
+        // Influenced by status
+        $attackPercentage = 100;
+
+        $dex = $this->dex /* +bDex*/;
+        $str = $this->str /* +bStr*/;
+        $luk = $this->luk /* +bLuk*/;
+
+        if($this->job === JOB_ARCHER || $this->job === JOB_HUNTER){
+            $mainAttackStat = $dex;
+            $secondAttackStat = $str;
+        }
+        else{
+            $mainAttackStat = $str;
+            $secondAttackStat = $dex;
+        }
+        $baseAttack = $mainAttackStat
+            + ( floor( $mainAttackStat / 10 ) * floor( $mainAttackStat / 10 ) )
+            + floor( $secondAttackStat / 5 )
+            + floor( $luk / 5 );
+
+        return ($bonusAttack > 0) ? $baseAttack.' +'.$bonusAttack : $baseAttack;
+    }
+
+    public function defensePoints()
+    {
+        return "";
+    }
+
+    public function damagePoints()
+    {
+        return "";
+    }
+
+    public function magicAttackPoints()
+    {
+        return "";
+    }
+
+    public function magicDefensePoints()
+    {
+        return "";
+    }
+
+    public function statPoints()
+    {
+        return "";
+    }
+
+    public function skillPoints()
+    {
+        return "";
+    }
+
+    // berechnet Modifikationen an den 6 Stats durch Statusver�nderungen
+    function calcStaMod($char)
+    {
+        $sta_bonus[0] = $this->equipBonus->str;
+        $sta_bonus[1] = $this->equipBonus->agi;
+        $sta_bonus[2] = $this->equipBonus->con;
+        $sta_bonus[3] = $this->equipBonus->int;
+        $sta_bonus[4] = $this->equipBonus->dex;
+        $sta_bonus[5] = $this->equipBonus->luk;
+
+        $stat = array();
+        $sta_mod = array();
+        $level = $char['char_jlevel'];
+
+        // Status Effekte?
+        if ($status["Adrenaline"] >= 1){
+            $p_agiu = true;
+        }
+        if (substr_count($char['char_status'],"�AGIUP�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($char['char_status'],"�ANGELUS�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($char['char_status'],"�BLESSED�") >= 1)        {
+            $p_ble = true;
+            $pos = strpos($user['user_status'],"�BLESSED�");
+            $o_ble = substr($user['user_status'],$pos+8,1);
+            if($o_ble=="a") $o_ble = 10;
+            $o_ble = abs($o_ble);
+        }
+        if (substr_count($user['user_status'],"�BLIND�") >= 1)        {
+            $p_agiu = true;
+        }
+        // B.S.S.
+        if (substr_count($user['user_status'],"�o_bss�") >= 1)        {
+            $o_bss = true;
+        }
+        if (substr_count($user['user_status'],"�p_burn�") >= 1)        {
+            $p_burn = true;
+        }
+        // crazy uproar
+        if (substr_count($user['user_status'],"�p_cu�") >= 1)        {
+            $p_cu = true;
+        }
+        // cursed
+        if (substr_count($user['user_status'],"�o_cu�") >= 1)        {
+            $o_cur = true;
+        }
+        if (substr_count($user['user_status'],"�DEFAURA�") >= 1)        {
+            $p_def = true;
+        }
+        if (substr_count($user['user_status'],"�FREEZE�") >= 1)        {
+            $p_fre = true;
+        }
+        if (substr_count($user['user_status'],"�GLORIA�") >= 1)        {
+            $p_glo = true;
+        }
+        if (substr_count($user['user_status'],"�IMPOSITIO�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($user['user_status'],"�IMPROVECONC") >= 1)        {
+            $p_ic = true;
+        }
+        if (substr_count($user['user_status'],"�MAGNIFICAT�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($user['user_status'],"�OWL�") >= 1)        {
+            $p_owl = true;
+        }
+        if (substr_count($user['user_status'],"�POISONED�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($user['user_status'],"�PROVOKED�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($user['user_status'],"�RESISTANTS�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($user['user_status'],"�SIGNUM�") >= 1)        {
+            $p_agiu = true;
+        }
+        if ($status[''] >= 1)        {
+            $o_qua = true;
+        }
+        if (substr_count($user['user_status'],"�SUFFRA�") >= 1)        {
+            $p_agiu = true;
+        }
+        if (substr_count($user['user_status'],"�STONECURSE�") >= 1)        {
+            $p_agiu = true;
+        }
+        //global $mod_bonus;
+        for ($i = 0; $i < 6; $i++) {
+            $sta_mod[$i] = $stat[$i] + $sta_bonus[$i] + $mod_bonus[$job][$level][$i];
+            $debug[] = "sta_mod[$i] = {$stat[$i]} + {$sta_bonus[$i]} + {$mod_bonus[$job][$level][$i]};";
+        }
+
+        if ($p_cu) $sta_mod[0] += 4;
+        $sta_mod[0] += $o_ble;
+
+        if ($p_ic) $sta_mod[1] *= 1.02 + $p_ic * 0.01;
+        if ($o_agiu) $sta_mod[1] += 2 + $o_agiu;
+
+        $sta_mod[3] += $o_ble;
+
+        if ($p_owl) $sta_mod[4] += $p_owl;
+        if ($p_ic) $sta_mod[4] *= 1.02 + $p_ic * 0.01;
+        $sta_mod[4] += $o_ble;
+
+        if ($o_glo) $sta_mod[5] += 30;
+        $sta_mod[5] += $bonus[9][5];
+
+        if ($o_cur) {
+            $sta_mod[5] = 0;
+            $dmg_mod_p -= 25;
+        }
+
+        if ($o_qua) {
+            $sta_mod[1] *= 0.5;
+            $sta_mod[4] *= 0.5;
+        }
+
+        for ($i = 0; $i < 6; $i++) {
+            $sta_mod[$i] = floor($sta_mod[$i]);
+        }
+        return $sta_mod;
+    }
+
+    private function getJobStatBonus(){
+        switch($this->job){
+            // Swordman
+            case JOB_SWORDMAN:
+                $bonus = [1,0,1,0,0,0,3,0,0,0,5,0,0,0,1,0,0,0,3,0,0,0,5,0,0,0,6,0,0,0,2,0,0,1,0,0,5,0,3,0,1,0,3,0,6,0,2,1,0,1,1];
+                break;
+            case JOB_MAGE:
+                // Magician
+                $bonus = [2,0,4,0,0,0,5,0,0,0,5,0,0,0,4,0,0,0,2,0,0,0,4,0,0,0,2,0,0,0,6,0,0,4,0,0,5,0,4,0,2,0,6,0,4,0,4,2,0,6,4];
+                break;
+            case JOB_ARCHER:
+                // Archer
+                $bonus = [3,0,5,0,0,0,1,0,0,0,4,0,0,0,5,0,0,0,5,0,0,0,6,0,0,0,2,0,0,0,5,0,0,2,0,0,5,0,1,0,1,0,5,0,6,0,3,4,0,2,5];
+                break;
+            case JOB_ACOLYTE:
+                // Acolyte
+                $bonus = [4,0,6,0,0,0,3,0,0,0,4,0,0,0,5,0,0,0,6,0,0,0,2,0,0,0,1,0,0,0,3,0,0,4,0,0,5,0,6,0,2,0,1,0,3,0,4,5,0,1,6];
+                break;
+            case JOB_MERCHANT:
+                // Merchant
+                $bonus = [5,0,3,0,0,0,5,0,0,0,1,0,0,0,5,0,0,0,3,0,0,0,1,0,0,0,4,0,0,0,3,0,0,0,0,0,6,0,5,0,1,2,5,0,1,0,6,3,0,1,5];
+                break;
+            case JOB_THIEF:
+                // Thief
+                $bonus = [6,0,2,0,0,0,1,0,0,0,5,0,0,0,3,0,0,0,4,0,0,0,5,0,0,0,6,0,0,0,1,0,0,2,0,0,1,0,2,0,6,0,5,0,3,0,6,1,0,5,2];
+                break;
+            default:
+                $bonus = [];
+        }
+
+        for($i = 0; $i < $this->job_level && $i < count($bonus); ++$i){
+            $stat = $bonus[$i];
+            switch($stat){
+                case STR:
+                    $this->bStr++; break;
+                case AGI:
+                    $this->bAgi++; break;
+                case INT:
+                    $this->bInt++; break;
+                case DEX:
+                    $this->bDex++; break;
+                case CON:
+                    $this->bCon++; break;
+                case LUK:
+                    $this->bLuk++; break;
+            }
+        }
+    }
+
+    function getEquipmentBonus ()
+    {
+        $slang = array();
+        /*****************************
+         *  DB-Abfrage der Ausr�stung *
+         ******************************/
+
+        for ($i = 0; $i <= 9; $i++) {
+            $where = '';
+            if ($wstring[$i]['useritem_id'])
+                $where .= "useritem_id = {$wstring[$i]}";
+            if ($where != '') {
+                $sql = "SELECT  useritem_id, user, item_id, item_number FROM {$table_prefix}useritems
+          WHERE $where";
+                if (!($result = $db->sql_query($sql))) {
+                    message_die(GENERAL_MESSAGE, 'Gl�hend hei�... autsch, aua >.< 11<br>' . $sql . '<br>-' . $equip[3] . '<br>-' . $equip[5] . '<br>');
+                }
+                while ($row = $db->sql_fetchrow($result)) {
+                    if ($row['useritem_id'] > 0) {
+                        $eq = $row['item_id']; //Arrayeintr�ge �berschreiben, SonderID wird hier nicht gebraucht
+                        //$i = (getWeaponType($equipment)>0) ? 5 : 3;
+                        $wstring[$i] = $eq;
+                        $debug[] = '$equip[' . $i . '] = ' . $wstring[$i];
+                    }
+                }
+            }
+        }
+
+        $debug[] = '<br>';
+        $where = '';
+        $warray = array();
+        for ($i = 0; $i <= 9; $i++) {
+            if ($wstring[$i]) {
+                $warray[] = $wstring[$i];
+            }
+        }
+        if (sizeof($warray) > 0) {
+            for ($i = 0; $i < sizeof($warray); $i++) {
+
+                $where .= ' id = ' . $warray[$i] . ' ';
+                $where .= ($i == sizeof($warray) - 1) ? '' : 'OR';
+
+            }
+        } elseif (sizeof($warray) == 0) {
+            $where = 'id = 0';
+        }
+        $sql = "SELECT script_equip, attack, defence, type FROM {$table_prefix}item_db2
+        WHERE ({$where})";
+        if (!($result = $db->sql_query($sql))) {
+            message_die(GENERAL_MESSAGE, 'Ein H�llenfeuer entfacht deine Kleidung T_T');
+        }
+        $item_script = '';
+        while ($row = $db->sql_fetchrow($result)) {
+            $item_script .= $row['script_equip'];
+            $slang['def'] += $row['defence'];
+            if ($row['type'] == 10) {
+                $slang['arrow_att'] += $row['attack'];
+            } else {
+                $slang['att'] += $row['attack'];
+            }
+        }
+        $debug[] = 'Attacke: ' . $slang['att'] . ', Verteidigung: ' . $slang['def'];
+        if ($slang['arrow_att']) $debug[] = 'Pfeilattacke: ' . $slang['arrow_att'];
+
+        /*****************************
+         *  Auswertung/Interpretation *
+         ******************************/
+        $debug[] = '<br>Totales Equimentskript: ' . $item_script;
+        $item_script = explode(';', $item_script);
+        foreach ($item_script AS $script) {
+            $script = explode(',', $script);
+            $script[0] = ltrim(rtrim($script[0]));
+            $bcheck = explode(' ', $script[0]);
+            if ($bcheck[0] == '') $bcheck[0] = 'leer';
+            switch ($bcheck[0]) {
+                case 'bonus':
+                    $debug[] = 'Bonustyp-Unterart->Wert' . $bcheck[0] . '-' . $bcheck[1] . '->' . $script[1];
+                    switch ($bcheck[1]) {
+                        case 'bStr':
+                            $slang['str'] += $script[1];
+                            break;
+                        case 'bVit':
+                            $slang['con'] += $script[1];
+                            break;
+                        case 'bDex':
+                            $slang['dex'] += $script[1];
+                            break;
+                        case 'bInt':
+                            $slang['int'] += $script[1];
+                            break;
+                        case 'bAgi':
+                            $slang['agi'] += $script[1];
+                            break;
+                        case 'bLuk':
+                            $slang['luk'] += $script[1];
+                            break;
+                        case 'bHit':
+                            $slang['hit'] += $script[1];
+                            break;
+                        case 'bFlee':
+                            $slang['flee'] += $script[1];
+                            break;
+                        case 'bFlee2':
+                            $slang['flee'] += $script[1];
+                            break;
+                        case 'bAtk':
+                            $slang['att'] += $script[1];
+                            break;
+                        case 'bMatk':
+                            $slang['matk'] += $script[1];
+                            break;
+                        case 'bDef':
+                            $slang['def'] += $script[1];
+                            break;
+                        case 'bMdef':
+                            $slang['mdef'] += $script[1];
+                            break;
+                        case 'bMaxHP':
+                            $slang['maxhp'] += $script[1];
+                            break;
+                        case 'bMaxSP':
+                            $slang['maxsp'] += $script[1];
+                            break;
+                        case 'bMatkRate':
+                            $slang['matkrate'] += $script[1];
+                            break;                         //Matk + %
+                        case 'bMaxHPrate':
+                            $slang['maxhprate'] += $script[1];
+                            break;                         //HP + %
+                        case 'bMaxSPrate':
+                            $slang['maxsprate'] += $script[1];
+                            break;                         //SP + %
+                        case 'bAtkEle':
+                            $slang['atk_element'] = $script[1];
+                            break;                         //Angriffselement (eins und nur eins)
+                        case 'bCastrate':
+                            $slang['castrate'] += $script[1];
+                            break;                         //cast + % (negativ)
+                        case 'bCritical':
+                            $slang['critical'] += $script[1];
+                            break;                         //critical + %
+                        case 'bDoubleRate':
+                            $slang['doublerate'] += $script[1];
+                            break;             //-->       //Doppelschlag %
+                        case 'bGetZenyNum':
+                            $slang['gold'] += $script[1];
+                            break;                         //Gold nach Kampf
+                        case 'bLongAtkDef':
+                            $slang['l_attdef'] += $script[1];
+                            break;             //-->       //%-Resistenz gegen Fernkampfwaffen
+                        case 'bAspd':
+                            $slang['aspd'] += $script[1];
+                            break;             //-->       //Attack Speed
+                        case 'bAspdRate':
+                            $slang['aspdrate'] += $script[1];
+                            break;             //-->       //Attack Speed + %
+                        case 'bSpeedRate':
+                            $slang['speed'] += $script[1];
+                            break;                         //Speed +
+                        case 'bNoSizeFix':
+                            $slang['nosizefix'] += $script[1];
+                            break;             //-->       //100% gegen alle Gr��en
+                        case 'bUseSPrate':
+                            $slang['sp_cost'] += $script[1];
+                            break;                         //Verbraucht SP pro Runde (negativ)
+                        case 'bRange':
+                            $slang['range'] += $script[1];
+                            break;      //--> //bekommt spezielle Items von bestimmten Monstern
+                        case 'bAspdAddRate':
+                            $slang['aspdrate'] += $script[1];
+                            break;  //--> //Attack Speed + %
+                        case 'bSplashRange':
+                            $slang['splash'] += $script[1];
+                            break;  //--> //Alle Gegner erleiden Schaden
+                        case 'bSPrecovRate':
+                            $slang['sp_regen'] += $script[1];
+                            break;        //bessere SP-Regeneration um %
+                        case 'bIgnoreDefRace':
+                            $slang['ignore_def_race'] = $script[1];
+                            break;  //--> //Ignoriert RassenDEF (eine und nur eine)
+                        case 'bPerfectHitRate':
+                            $slang['hitrate'] += $script[1];
+                            break;  //--> //Hit + %
+                        case 'bMagicDamageReturn':
+                            $slang['m_return'] += $script[1];
+                            break;  //--> //% Magie zur�ckzuschlagen
+                        case 'bRestartFullRecover':
+                            $slang['RFR'] += $script[1];
+                            break;        //Regeneriert nach dem Tod komplett
+                        case 'bShortWeaponDamageReturn':
+                            $slang['a_return'] += $script[1];
+                            break;        //% Waffenschaden zur�ckzuschlagen
+                        default:
+                            $debug[] = 'FEHLER IN BONUS! pr�fe ->' . $script[0] . '<-';
+                            break;
+                    }
+                    break;
+                case 'bonus2':
+                    $debug[] = 'Bonustyp-Unterart->Wert1, Wert2' . $bcheck[0] . '-' . $bcheck[1] . '->' . $script[1] . ', ' . $script[2];
+                    switch ($bcheck[1]) {
+                        case 'bAddEle':
+                            $slang['addele-' . $script[1]] += $script[2];
+                            break;
+                        case 'bAddEff':
+                            $slang['addeff-' . $script[1]] += $script[2];
+                            break;
+                        case 'bAddRace':
+                            $slang['addrace-' . $script[1]] += $script[2];
+                            break;
+                        case 'bSubRace':
+                            $slang['subrace-' . $script[1]] += $script[2];
+                            break;
+                        case 'bResEff':
+                            $slang['res-' . $script[1]] += $script[2];
+                            break;
+                        case 'bSubEle':
+                            $slang['subele-' . $script[1]] += $script[2];
+                            break;
+                        case 'bAddSize':
+                            $slang['addsize-' . $script[1]] += $script[2];
+                            break;
+                        case 'bWeaponComaRace':
+                            $slang['suddenkill-' . $script[1]] += $script[2];
+                            break;
+                        case 'bHPDrainRate':
+                            $slang['hpdrain-' . $script[1]] += $script[2];
+                            break;
+                        case 'bSpDrainRate':
+                            $slang['spdrain-' . $script[1]] += $script[2];
+                            break;
+                        case 'bAddDamageClass':
+                            $slang['adddamclass-' . $script[1]] += $script[2];
+                            break;
+                        case 'bRandomAttackIncrease':
+                            $slang['randomatt-' . $script[1]] += $script[2];
+                            break;
+                        default:
+                            $debug[] = 'FEHLER IN BONUS2! pr�fe ->' . $script[0] . '<-';
+                            break;
+                    }
+                    break;
+
+
+                case 'bonus3':
+                    $debug[] = 'Bonustyp-Unterart->Wert1, Wert2, Wert3' . $bcheck[0] . '-' . $bcheck[1] . '->' . $script[1] . ', ' . $script[2] . ', ' . $script[3];
+                    switch ($bcheck[1]) {
+                        case 'bAutoSpell':
+                            $slang['autospell'] = array($script[1], $script[2], $script[3]);
+                            break;
+                        case 'bAddMonsterDropItem':
+                            $slang['dropitem'] = array($script[1], $script[2], $script[3]);
+                            break;
+                        default:
+                            $debug[] = 'FEHLER IN BONUS3! pr�fe ->' . $script[0] . '<-';
+                            break;
+                    }
+                    break;
+                /*case 'skill':$debug[] = 'Bonustyp-Unterart->Wert1, Wert2'.$bcheck[0].'-'.$bcheck[1].'->'.$script[1].', '.$script[2];
+           $slang['skill-'.$script[1]] += $script[2];
+        break;
+        case 'refined':$debug[] = 'Bonustyp-Unterart->Wert1'.$bcheck[0].'-'.$bcheck[1].'->'.$script[1];
+           $slang['???'] = $script[1];
+        break;
+        case 'slot':$debug[] = 'Bonustyp-Unterart->Wert1'.$bcheck[0].'-'.$bcheck[1].'->'.$script[1];
+           $slang['slots'] += $script[1];
+        break;*/
+                case 'leer':
+                    $debug[] = 'leerer Bonus';
+                    break;
+                default:
+                    $debug[] = 'UNG�LTIGER BONUSTYP! pr�fe ->' . $script[0] . '<-';
+                    break;
+            }
+        }
+
+    }
+
+    /*
+     * ================================
+     * Avatar Image Handling
+     * ================================
+     */
 
     private function getImageHeadPath(){
         return "images/avatars/".$this->id.".head.png";

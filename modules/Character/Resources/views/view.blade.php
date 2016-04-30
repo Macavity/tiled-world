@@ -134,28 +134,8 @@
 					</td>
 					<td valign="top" class="row1">{IMAGE}</td>
 				</tr>
-				<tr class="genmed">
-					<td colspan="5" class="row2"> <div align="left">{DEBUG} </div></td>
-				</tr>
-				<tr>
-					<td colspan="5" height="1" class="spaceRow"><img src="templates/subSilver/images/spacer.gif" width="1" height="1" /></td>
-				</tr>
 			</table>
-			<!--/td>
-       </tr>
-       <tr>
-         <td></td>
-       </tr>
-      </table-->
 		</form>
-		<script language="JavaScript" type="text/javascript">
-			// <!--
-			//if (document.images) animation()
-			if (document.images) setImages()
-			// -->
-		</script>
-
-
 	</div>
 
 @stop
