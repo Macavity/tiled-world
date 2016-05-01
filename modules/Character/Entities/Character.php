@@ -318,17 +318,17 @@ class Character extends Model
             $stat = $bonus[$i];
             switch($stat){
                 case STR:
-                    $this->bStr++; break;
+                    $this->bonusStr++; break;
                 case AGI:
-                    $this->bAgi++; break;
+                    $this->bonusAgi++; break;
                 case INT:
-                    $this->bInt++; break;
+                    $this->bonusInt++; break;
                 case DEX:
-                    $this->bDex++; break;
+                    $this->bonusDex++; break;
                 case CON:
-                    $this->bCon++; break;
+                    $this->bonusCon++; break;
                 case LUK:
-                    $this->bLuk++; break;
+                    $this->bonusLuk++; break;
             }
         }
     }

@@ -12,11 +12,11 @@ define('LUK', 6);
 
 define('JOB_NOVICE', 0);
 define('JOB_SWORDMAN', 1);
-define('JOB_ARCHER', 2);
-define('JOB_THIEF', 3);
+define('JOB_MAGE', 2);
+define('JOB_ARCHER', 3);
 define('JOB_ACOLYTE', 4);
 define('JOB_MERCHANT', 5);
-define('JOB_MAGE', 6);
+define('JOB_THIEF', 6);
 
 define('JOB_KNIGHT', 7);
 define('JOB_HUNTER', 8);
