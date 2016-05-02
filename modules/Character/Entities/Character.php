@@ -7,40 +7,68 @@ use Modules\Character\Repositories\EffectRepository;
 
 /**
  * Class Character
+ *
  * @package Modules\Character\Entities
- *
- * @property integer id
- * @property integer user_id
- * @property integer gender
- * @property integer job
- * @property integer hair_color
- * @property integer hair_style
- *
- * @property integer health_points
- * @property integer special_points
- *
- * @property integer base_level
- * @property integer job_level
- *
- * @property integer base_exp
- * @property integer job_exp
- *
- * @property integer str
- * @property integer con
- * @property integer agi
- * @property integer dex
- * @property integer luk
- * @property integer int
- *
- * @property integer bonusStr
- * @property integer bonusAgi
- * @property integer bonusDex
- * @property integer bonusInt
- * @property integer bonusCon
- * @property integer bonusLuk
- *
- * @property integer rank_points
- *
+ * @property integer $id
+ * @property integer $user_id
+ * @property string $name
+ * @property boolean $gender
+ * @property string $bio
+ * @property boolean $job
+ * @property boolean $base_level
+ * @property boolean $job_level
+ * @property integer $base_exp
+ * @property integer $job_exp
+ * @property boolean $hair_style
+ * @property string $hair_color
+ * @property integer $health_points
+ * @property integer $special_points
+ * @property integer $str
+ * @property integer $con
+ * @property integer $agi
+ * @property integer $dex
+ * @property integer $luk
+ * @property integer $rank_points
+ * @property string $remember_token
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property integer $bonusStr
+ * @property integer $bonusAgi
+ * @property integer $bonusDex
+ * @property integer $bonusInt
+ * @property integer $bonusCon
+ * @property integer $bonusLuk
+ * @property-read \Illuminate\Database\Eloquent\Collection|\modules\Character\Entities\EquipmentSet[] $equipmentSets
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereName($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereGender($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBio($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereJob($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBaseLevel($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereJobLevel($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBaseExp($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereJobExp($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereHairStyle($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereHairColor($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereHealthPoints($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereSpecialPoints($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereStr($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereCon($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereAgi($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereDex($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereLuk($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereRankPoints($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereRememberToken($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBonusStr($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBonusAgi($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBonusDex($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBonusInt($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBonusCon($value)
+ * @method static \Illuminate\Database\Query\Builder|\Modules\Character\Entities\Character whereBonusLuk($value)
+ * @mixin \Eloquent
  */
 class Character extends Model
 {
