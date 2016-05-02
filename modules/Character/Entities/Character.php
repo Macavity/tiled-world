@@ -3,6 +3,7 @@
 use DB;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Character\Repositories\EffectRepository;
 
 /**
  * Class Character
@@ -31,23 +32,23 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer luk
  * @property integer int
  *
+ * @property integer bonusStr
+ * @property integer bonusAgi
+ * @property integer bonusDex
+ * @property integer bonusInt
+ * @property integer bonusCon
+ * @property integer bonusLuk
+ *
  * @property integer rank_points
  *
  */
 class Character extends Model
 {
-    var $hp;
-    var $sp;
     var $add_hp;
     var $add_sp;
     var $max_hp;
     var $max_sp;
 
-    public $speed = "";
-    public $hit = "";
-    public $cast = "";
-    public $crit = "";
-    public $flee = "";
 
     var $sta_mod = array();
 
@@ -65,7 +66,6 @@ class Character extends Model
     var $battle_temp;
 
     private $equipBonus;
-
 
     protected $fillable = ["name", "gender", "job", "hair_color", "hair_style"];
 
@@ -106,9 +106,9 @@ class Character extends Model
         // Influenced by status
         $attackPercentage = 100;
 
-        $dex = $this->dex /* +bDex*/;
-        $str = $this->str /* +bStr*/;
-        $luk = $this->luk /* +bLuk*/;
+        $dex = $this->dex + $this->bonusDex;
+        $str = $this->str + $this->bonusStr;
+        $luk = $this->luk + $this->bonusLuk;
 
         if($this->job === JOB_ARCHER || $this->job === JOB_HUNTER){
             $mainAttackStat = $dex;
@@ -156,100 +156,96 @@ class Character extends Model
         return "";
     }
 
-    // berechnet Modifikationen an den 6 Stats durch Statusver�nderungen
-    function calcStaMod($char)
+    /**
+     * Calculates status modifications based on currently active effects on the character
+     * @param $char
+     * @return array
+     */
+    function calculateStatusModifications($char)
     {
-        $sta_bonus[0] = $this->equipBonus->str;
-        $sta_bonus[1] = $this->equipBonus->agi;
-        $sta_bonus[2] = $this->equipBonus->con;
-        $sta_bonus[3] = $this->equipBonus->int;
-        $sta_bonus[4] = $this->equipBonus->dex;
-        $sta_bonus[5] = $this->equipBonus->luk;
+        $statusEffects = new EffectRepository();
 
-        $stat = array();
-        $sta_mod = array();
-        $level = $char['char_jlevel'];
 
         // Status Effekte?
         if ($status["Adrenaline"] >= 1){
             $p_agiu = true;
         }
-        if (substr_count($char['char_status'],"�AGIUP�") >= 1)        {
+        if (substr_count($char['char_status'],"AGIUP") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($char['char_status'],"�ANGELUS�") >= 1)        {
+        if (substr_count($char['char_status'],"ANGELUS") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($char['char_status'],"�BLESSED�") >= 1)        {
+        if (substr_count($char['char_status'],"BLESSED") >= 1)        {
             $p_ble = true;
-            $pos = strpos($user['user_status'],"�BLESSED�");
+            $pos = strpos($user['user_status'],"BLESSED");
             $o_ble = substr($user['user_status'],$pos+8,1);
             if($o_ble=="a") $o_ble = 10;
             $o_ble = abs($o_ble);
         }
-        if (substr_count($user['user_status'],"�BLIND�") >= 1)        {
+        if (substr_count($user['user_status'],"BLIND") >= 1)        {
             $p_agiu = true;
         }
         // B.S.S.
-        if (substr_count($user['user_status'],"�o_bss�") >= 1)        {
+        if (substr_count($user['user_status'],"o_bss") >= 1)        {
             $o_bss = true;
         }
-        if (substr_count($user['user_status'],"�p_burn�") >= 1)        {
+        if (substr_count($user['user_status'],"p_burn") >= 1)        {
             $p_burn = true;
         }
         // crazy uproar
-        if (substr_count($user['user_status'],"�p_cu�") >= 1)        {
+        if (substr_count($user['user_status'],"p_cu") >= 1)        {
             $p_cu = true;
         }
         // cursed
-        if (substr_count($user['user_status'],"�o_cu�") >= 1)        {
+        if (substr_count($user['user_status'],"o_cu") >= 1)        {
             $o_cur = true;
         }
-        if (substr_count($user['user_status'],"�DEFAURA�") >= 1)        {
+        if (substr_count($user['user_status'],"DEFAURA") >= 1)        {
             $p_def = true;
         }
-        if (substr_count($user['user_status'],"�FREEZE�") >= 1)        {
+        if (substr_count($user['user_status'],"FREEZE") >= 1)        {
             $p_fre = true;
         }
-        if (substr_count($user['user_status'],"�GLORIA�") >= 1)        {
+        if (substr_count($user['user_status'],"GLORIA") >= 1)        {
             $p_glo = true;
         }
-        if (substr_count($user['user_status'],"�IMPOSITIO�") >= 1)        {
+        if (substr_count($user['user_status'],"IMPOSITIO") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"�IMPROVECONC") >= 1)        {
+        if (substr_count($user['user_status'],"IMPROVECONC") >= 1)        {
             $p_ic = true;
         }
-        if (substr_count($user['user_status'],"�MAGNIFICAT�") >= 1)        {
+        if (substr_count($user['user_status'],"MAGNIFICAT") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"�OWL�") >= 1)        {
+        if (substr_count($user['user_status'],"OWL") >= 1)        {
             $p_owl = true;
         }
-        if (substr_count($user['user_status'],"�POISONED�") >= 1)        {
+        if (substr_count($user['user_status'],"POISONED") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"�PROVOKED�") >= 1)        {
+        if (substr_count($user['user_status'],"PROVOKED") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"�RESISTANTS�") >= 1)        {
+        if (substr_count($user['user_status'],"RESISTANTS") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"�SIGNUM�") >= 1)        {
+        if (substr_count($user['user_status'],"SIGNUM") >= 1)        {
             $p_agiu = true;
         }
         if ($status[''] >= 1)        {
             $o_qua = true;
         }
-        if (substr_count($user['user_status'],"�SUFFRA�") >= 1)        {
+        if (substr_count($user['user_status'],"SUFFRA") >= 1)        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"�STONECURSE�") >= 1)        {
+        if (substr_count($user['user_status'],"STONECURSE") >= 1)        {
             $p_agiu = true;
         }
         //global $mod_bonus;
         for ($i = 0; $i < 6; $i++) {
-            $sta_mod[$i] = $stat[$i] + $sta_bonus[$i] + $mod_bonus[$job][$level][$i];
+            $sta_mod[$i] = $stat[$i] + $sta_bonus[$i];
             $debug[] = "sta_mod[$i] = {$stat[$i]} + {$sta_bonus[$i]} + {$mod_bonus[$job][$level][$i]};";
         }
 
@@ -284,7 +280,19 @@ class Character extends Model
         return $sta_mod;
     }
 
-    private function getJobStatBonus(){
+    private function calculateBonusStats(){
+        $this->bonusStr = 0;
+        $this->bonusDex = 0;
+        $this->bonusAgi = 0;
+        $this->bonusInt = 0;
+        $this->bonusCon = 0;
+        $this->bonusLuk = 0;
+
+        $this->calculateJobStatBonus();
+        $this->calculateEquipmentBonus();
+    }
+
+    private function calculateJobStatBonus(){
         switch($this->job){
             // Swordman
             case JOB_SWORDMAN:
@@ -314,27 +322,22 @@ class Character extends Model
                 $bonus = [];
         }
 
-        for($i = 0; $i < $this->job_level && $i < count($bonus); ++$i){
-            $stat = $bonus[$i];
-            switch($stat){
-                case STR:
-                    $this->bonusStr++; break;
-                case AGI:
-                    $this->bonusAgi++; break;
-                case INT:
-                    $this->bonusInt++; break;
-                case DEX:
-                    $this->bonusDex++; break;
-                case CON:
-                    $this->bonusCon++; break;
-                case LUK:
-                    $this->bonusLuk++; break;
-            }
-        }
+        $bonusForLevel = array_slice($bonus, 1, $this->job_level);
+        $bonusCount = array_count_values($bonusForLevel);
+
+        $this->bonusStr += $bonusCount[STR];
+        $this->bonusAgi += $bonusCount[AGI];
+        $this->bonusInt += $bonusCount[INT];
+        $this->bonusDex += $bonusCount[DEX];
+        $this->bonusCon += $bonusCount[CON];
+        $this->bonusLuk += $bonusCount[LUK];
+
     }
 
-    function getEquipmentBonus ()
+    // TODO calculate Equipment bonus
+    function calculateEquipmentBonus ()
     {
+        return;
         $slang = array();
         /*****************************
          *  DB-Abfrage der Ausr�stung *
