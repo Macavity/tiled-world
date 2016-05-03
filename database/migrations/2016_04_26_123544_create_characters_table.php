@@ -44,6 +44,7 @@ class CreateCharactersTable extends Migration
         Schema::create('characters', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
+            $table->integer('equipment_set_id');
 
             $table->string('name');
             $table->tinyInteger('gender');
@@ -58,7 +59,7 @@ class CreateCharactersTable extends Migration
             $table->bigInteger('job_exp')->default(0);
 
             $table->tinyInteger('hair_style');
-            $table->tinyInteger('hair_color');
+            $table->string('hair_color', 6);
 
             $table->integer('health_points');
             $table->integer('special_points');
@@ -67,7 +68,14 @@ class CreateCharactersTable extends Migration
             $table->smallInteger('con');
             $table->smallInteger('agi');
             $table->smallInteger('dex');
+            $table->smallInteger('int');
             $table->smallInteger('luk');
+
+            $table->integer('bonusAgi')->default(0);
+            $table->integer('bonusDex')->default(0);
+            $table->integer('bonusInt')->default(0);
+            $table->integer('bonusCon')->default(0);
+            $table->integer('bonusLuk')->default(0);
 
             $table->integer('rank_points');
 

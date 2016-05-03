@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeHairColorToString extends Migration
+class CreateItemTemplatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,8 +12,9 @@ class ChangeHairColorToString extends Migration
      */
     public function up()
     {
-        Schema::table('characters', function($table){
-            $table->string('hair_color', 6)->change();
+        Schema::create('item_templates', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
         });
     }
 
@@ -24,6 +25,6 @@ class ChangeHairColorToString extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('item_templates');
     }
 }

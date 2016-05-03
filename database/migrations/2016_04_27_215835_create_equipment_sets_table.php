@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EquipmentSetsTable extends Migration
+class CreateEquipmentSetsTable extends Migration
 {
     /**
      * Run the migrations.
