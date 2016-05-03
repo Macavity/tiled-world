@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-  @include('errors.common', ['errors' => ['Unauthorized']])
+  @include('errors.single', ['description' => 'Unauthorized'])
 @endsection
