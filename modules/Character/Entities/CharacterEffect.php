@@ -32,4 +32,14 @@ class CharacterEffect extends Model
     public function character(){
         $this->belongsTo(Character::class);
     }
+
+    public function getIconSrc(){
+        $iconSrc = "/images/status/".strtolower($this->name).".gif";
+        if(file_exists(public_path($iconSrc))){
+            return $iconSrc;
+        }
+        else {
+            return "";
+        }
+    }
 }

@@ -4,6 +4,7 @@ use DB;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Character\Repositories\EffectRepository;
+use Modules\Character\Repositories\EquipmentSetRepository;
 
 /**
  * Class Character
@@ -11,6 +12,7 @@ use Modules\Character\Repositories\EffectRepository;
  * @package Modules\Character\Entities
  * @property integer $id
  * @property integer $user_id
+ * @property integer $equipment_set_id
  * @property string $name
  * @property boolean $gender
  * @property string $bio
@@ -27,6 +29,7 @@ use Modules\Character\Repositories\EffectRepository;
  * @property integer $con
  * @property integer $agi
  * @property integer $dex
+ * @property integer $int
  * @property integer $luk
  * @property integer $rank_points
  * @property string $remember_token
@@ -105,6 +108,10 @@ class Character extends Model
         return $this->hasMany(EquipmentSet::class);
     }
 
+    public function statusEffects(){
+        return $this->hasMany(CharacterEffect::class);
+    }
+
     public function getClassName(){
 
         switch($this->job){
@@ -126,6 +133,52 @@ class Character extends Model
                 return "";
         }
     }
+
+    public function hit(){
+        return $this->base_level + $this->dex;
+    }
+    public function flee(){
+        return $this->base_level + $this->agi;
+    }
+
+    /**
+     * Calculates the swing time for physical attacks
+     * @return int
+     */
+    public function speed(){
+        $equipmentRepository = new EquipmentSetRepository();
+        $equipment = $equipmentRepository->active($this);
+
+        // Use delay for Fist/No-Weapon
+        $delay = ( $this->job == JOB_MAGE || $this->job == JOB_WIZARD) ? 50 : 40;
+
+        if($equipment && $equipment->right_hand){
+            $mainHandWeapon = $equipment->right_hand;
+            //$wType = getWeaponType($equip[5]);
+            //$delay = $mod_aspd[$db_job_name['num'][$class]][$wType]/10;
+        }
+
+        $delay = $delay - floor((floor($delay * $this->agi / 25) + floor($delay * $this->dex / 100)) / 10);
+        $speed = 200 - $delay;
+
+        return $speed;
+    }
+
+    /**
+     * Returns the cast time as percentage
+     * @return float
+     */
+    public function cast(){
+        return floor(100*50*(150-$this->dex)/150)/50;
+    }
+
+    /**
+     * @return int
+     */
+    public function crit() {
+        return ( 1 + floor(($this->luk + $this->bonusLuk)/3) );
+    }
+
 
     public function attackPoints()
     {
@@ -156,7 +209,17 @@ class Character extends Model
 
     public function defensePoints()
     {
-        return "";
+        $vitalityDefPercentage = 100;
+        $equipDefPercentage = 100;
+
+        // TODO Equipment defense bonus summary
+        $ebonus['def'] = 0;
+
+        $defense = floor($this->con * 0.5);
+        $defense = ($vitalityDefPercentage < 100) ? round($defense / 100 * $vitalityDefPercentage) : round($defense);
+        $equipDef = ($equipDefPercentage < 100) ?  round($ebonus['def'] / 100 * $equipDefPercentage) : $ebonus['def'];
+
+        return $equipDef + $defense;
     }
 
     public function damagePoints()
@@ -164,14 +227,22 @@ class Character extends Model
         return "";
     }
 
+    /**
+     * @return array
+     */
     public function magicAttackPoints()
     {
-        return "";
+        $magicAttackMin = $this->int + floor($this->int / 7) * floor($this->int / 7);
+        $magicAttacMax = $this->int + floor($this->int / 5) * floor($this->int / 5);
+        return ['min' => $magicAttackMin, 'max' => $magicAttacMax];
     }
 
+    /**
+     * @return int
+     */
     public function magicDefensePoints()
     {
-        return "";
+        return $this->int + floor($this->con/2);
     }
 
     public function statPoints()
@@ -191,84 +262,86 @@ class Character extends Model
      */
     function calculateStatusModifications($char)
     {
-        $statusEffects = new EffectRepository();
+        $effectRepo = new EffectRepository();
+        $statusEffects = $effectRepo->effectListforCharacter($char);
 
+        $p_agiu = $p_cu = $p_ble = $p_def = $p_burn = false;
 
         // Status Effekte?
-        if ($status["Adrenaline"] >= 1){
+        if (in_array('Adrenaline',$statusEffects)){
             $p_agiu = true;
         }
-        if (substr_count($char['char_status'],"AGIUP") >= 1)        {
+        if (in_array('AGIUP', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($char['char_status'],"ANGELUS") >= 1)        {
+        if (in_array('ANGELUS', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($char['char_status'],"BLESSED") >= 1)        {
+        if (in_array('BLESSED', $statusEffects))        {
             $p_ble = true;
             $pos = strpos($user['user_status'],"BLESSED");
             $o_ble = substr($user['user_status'],$pos+8,1);
             if($o_ble=="a") $o_ble = 10;
             $o_ble = abs($o_ble);
         }
-        if (substr_count($user['user_status'],"BLIND") >= 1)        {
+        if (in_array('BLIND', $statusEffects))        {
             $p_agiu = true;
         }
         // B.S.S.
-        if (substr_count($user['user_status'],"o_bss") >= 1)        {
+        if (in_array('o_bss', $statusEffects))        {
             $o_bss = true;
         }
-        if (substr_count($user['user_status'],"p_burn") >= 1)        {
+        if (in_array('p_burn', $statusEffects))        {
             $p_burn = true;
         }
         // crazy uproar
-        if (substr_count($user['user_status'],"p_cu") >= 1)        {
+        if (in_array('p_cu', $statusEffects))        {
             $p_cu = true;
         }
         // cursed
-        if (substr_count($user['user_status'],"o_cu") >= 1)        {
+        if (in_array('o_cu', $statusEffects))        {
             $o_cur = true;
         }
-        if (substr_count($user['user_status'],"DEFAURA") >= 1)        {
+        if (in_array('DEFAURA', $statusEffects))        {
             $p_def = true;
         }
-        if (substr_count($user['user_status'],"FREEZE") >= 1)        {
+        if (in_array('FREEZE', $statusEffects))        {
             $p_fre = true;
         }
-        if (substr_count($user['user_status'],"GLORIA") >= 1)        {
+        if (in_array('GLORIA', $statusEffects))        {
             $p_glo = true;
         }
-        if (substr_count($user['user_status'],"IMPOSITIO") >= 1)        {
+        if (in_array('IMPOSITIO', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"IMPROVECONC") >= 1)        {
+        if (in_array('IMPROVECONC', $statusEffects))        {
             $p_ic = true;
         }
-        if (substr_count($user['user_status'],"MAGNIFICAT") >= 1)        {
+        if (in_array('MAGNIFICAT', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"OWL") >= 1)        {
+        if (in_array('OWL', $statusEffects))        {
             $p_owl = true;
         }
-        if (substr_count($user['user_status'],"POISONED") >= 1)        {
+        if (in_array('POISONED', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"PROVOKED") >= 1)        {
+        if (in_array('PROVOKED', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"RESISTANTS") >= 1)        {
+        if (in_array('RESISTANTS', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"SIGNUM") >= 1)        {
+        if (in_array('SIGNUM', $statusEffects))        {
             $p_agiu = true;
         }
-        if ($status[''] >= 1)        {
+        if (in_array('o_qua', $statusEffects))        {
             $o_qua = true;
         }
-        if (substr_count($user['user_status'],"SUFFRA") >= 1)        {
+        if (in_array('SUFFRA', $statusEffects))        {
             $p_agiu = true;
         }
-        if (substr_count($user['user_status'],"STONECURSE") >= 1)        {
+        if (in_array('STONECURSE', $statusEffects))        {
             $p_agiu = true;
         }
         //global $mod_bonus;
@@ -277,7 +350,8 @@ class Character extends Model
             $debug[] = "sta_mod[$i] = {$stat[$i]} + {$sta_bonus[$i]} + {$mod_bonus[$job][$level][$i]};";
         }
 
-        if ($p_cu) $sta_mod[0] += 4;
+        if ($p_cu)
+            $sta_mod[0] += 4;
         $sta_mod[0] += $o_ble;
 
         if ($p_ic) $sta_mod[1] *= 1.02 + $p_ic * 0.01;
