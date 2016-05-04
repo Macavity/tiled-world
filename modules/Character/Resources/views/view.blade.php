@@ -134,7 +134,7 @@
 					<td class="row2" colspan="3"><textarea name="bio" cols="80" rows="3" class="post">{BIO}</textarea>
 						<input type="submit" id="upd_bio" name="upd_bio" value="Aktualisieren" class="liteoption">
 					</td>
-					<td valign="top" class="row1">{IMAGE}</td>
+					<td valign="top" class="row1">{{$character->getImageFull()}}</td>
 				</tr>
 			</table>
 		</form>
