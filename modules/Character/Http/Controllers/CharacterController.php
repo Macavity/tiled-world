@@ -121,10 +121,15 @@ class CharacterController extends Controller {
         $baseLevelUp = ($nextBaseExp > 0 && $character->base_exp >= $nextBaseExp);
         $jobLevelUp = ($nextJobExp > 0 && $character->job_exp >= $nextJobExp);
 
+        $baseExpPercent = round($character->base_exp / $nextBaseExp * 100, 2);
+        $jobExpPercent = round($character->job_exp / $nextJobExp * 100, 2);
+
         return view('character::view', compact(
             'character',
             'baseLevelUp',
-            'jobLevelUp'
+            'jobLevelUp',
+            'baseExpPercent',
+            'jobExpPercent'
         ));
     }
 

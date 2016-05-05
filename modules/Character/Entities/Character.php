@@ -5,6 +5,7 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Character\Repositories\EffectRepository;
 use Modules\Character\Repositories\EquipmentSetRepository;
+use Modules\Game\Entities\ItemTemplate;
 use Modules\Game\Entities\Job;
 
 /**
@@ -107,6 +108,10 @@ class Character extends Model
 
     public function equipmentSets(){
         return $this->hasMany(EquipmentSet::class);
+    }
+
+    public function equipment(){
+        return $this->hasOne(EquipmentSet::class)->findOrNew($this->equipment_set_id);
     }
 
     public function statusEffects(){
@@ -706,10 +711,7 @@ class Character extends Model
            $slang['slots'] += $script[1];
         break;*/
                 case 'leer':
-                    $debug[] = 'leerer Bonus';
-                    break;
                 default:
-                    $debug[] = 'UNG�LTIGER BONUSTYP! pr�fe ->' . $script[0] . '<-';
                     break;
             }
         }
@@ -744,9 +746,9 @@ class Character extends Model
     public function getImageFull(){
         $image = public_path($this->getImageFullPath());
 
-        if(!file_exists($image)){
+        //if(!file_exists($image)){
             $this->generateAvatarImage($this);
-        }
+        //}
 
         return asset($this->getImageFullPath());
 
@@ -849,12 +851,36 @@ class Character extends Model
 
         $str_gear = base_path('public/images/headgear/%s_%s.png');
 
-        $equip = $this->;
+        $equipment = $this->equipment();
 
         $counter = 0;
         $bool_gear = false;
         $last_l = 0;
         $last_t = 0;
+
+        $headSlots = [
+            EQUIP_FACE_1 => 'face1',
+            EQUIP_FACE_2 => 'face2',
+            EQUIP_FACE_3 => 'face3'
+        ];
+
+        $headGear = [];
+
+        foreach($headSlots as $slot => $fieldName){
+            if($equipment->$fieldName > 0){
+                $item = new ItemTemplate($equipment->$fieldName);
+                if($item){
+
+                    $headGear[] = [
+                        'item' => $equipment->$fieldName,
+                        'top' => 0,
+                        'left' => 0,
+                    ];
+                }
+            }
+        }
+
+        return $headGear;
 
         /*
          $e = $equip[EQUIP_FACE_1];
@@ -878,48 +904,7 @@ class Character extends Model
                     }
                 }
             }
-            $e = $equip[1];
-            if ($e > 500) {
-                $sql = "SELECT * FROM {$table_prefix}rpg_image_positions WHERE type='gear' AND type2='$e'";
-                $result = $db->sql_query($sql);
-                $debug[] = $sql . '<br>--> ' . $db->sql_numrows($result) . ' Results';
-                if ($db->sql_numrows($result) > 0) {
-                    $gearRow = $db->sql_fetchrow($result);
-                    $gear2 = sprintf($str_gear, $e, '00000');
-                    if (file_exists($gear2)) {
-                        $gear2Img = ImageCreateFromPNG($gear2);
-                        $g2_top = $gearRow['pos_top'];
-                        $g2_left = $gearRow['pos_left'];
-                        $gear2_w = ImageSX($gear2Img);
-                        $gear2_h = ImageSY($gear2Img);
-                        $bool_gear2 = true;
-                        $gear = true;
-                    } else {
-                        $die .= 'gear2Img not found';
-                    }
-                }
-            }
-            $e = $equip[9];
-            if ($e > 500) {
-                $sql = "SELECT * FROM {$table_prefix}rpg_image_positions WHERE type='gear' AND type2='$e'";
-                $result = $db->sql_query($sql);
-                $debug[] = $sql . '<br>--> ' . $db->sql_numrows($result) . ' Results';
-                if ($db->sql_numrows($result) > 0) {
-                    $gearRow = $db->sql_fetchrow($result);
-                    $gear3 = sprintf($str_gear, $e, '00000');
-                    if (file_exists($gear3)) {
-                        $gear3Img = ImageCreateFromPNG($gear3);
-                        $g3_top = $gearRow['pos_top'];
-                        $g3_left = $gearRow['pos_left'];
-                        $gear3_w = ImageSX($gear3Img);
-                        $gear3_h = ImageSY($gear3Img);
-                        $bool_gear3 = true;
-                        $gear = true;
-                    } else {
-                        $die .= 'gear3Img not found';
-                    }
-                }
-            }
+
 
             if ($gear) {
                 $sql = "SELECT * FROM {$table_prefix}rpg_image_positions WHERE type='head2gear' AND gender='$gender' AND type2=$hstyle";
@@ -1028,7 +1013,11 @@ class Character extends Model
 
 
         // Get Positions from DB
-        $jobImagePositions = DB::table('image_positions')->where(['gender' => $gender, 'job' => $job])->first();
+        $jobImagePositions = DB::table('image_positions')->where([
+            'gender' => $gender,
+            'type' => IMAGE_TYPE_JOB,
+            'type_detail' => $character->job
+        ])->first();
 
         $job_top = ($jobImagePositions) ? $jobImagePositions['top'] : 0;
         $job_left = ($jobImagePositions) ? $jobImagePositions['left'] : 0;
@@ -1039,36 +1028,21 @@ class Character extends Model
 
         $compilation = ImageCreate($width, $height);
         $gray = $this->hex2int('333333');
-        $gray = ImageColorAllocate($compilation, $gray[r], $gray[g], $gray[b]);
+        $gray = ImageColorAllocate($compilation, $gray['r'], $gray['g'], $gray['b']);
         $black = $this->hex2int('000000');
-        $black = ImageColorAllocate($compilation, $black[r], $black[g], $black[b]);
+        $black = ImageColorAllocate($compilation, $black['r'], $black['g'], $black['b']);
         $none = ImageColorTransparent($compilation, $gray);
 
-        //$h_top = 8;
-        //$h_left = 5;
+        $imagefile = $character->getImageFullPath();
 
-        $imagefile = sprintf($this->getImageFullPath(), 'chara_' . $char['save_id']);
+        //ImageCopyMerge($compilation, $bodyImg, 0, $hair_h, 0, 0, $body_w, $body_h, 100);
+        //ImageCopyMerge($compilation, $headImg, 0 + $h_left, 0 + $h_top, 0, 0, $hair_w, $hair_h, 100);
+        ImageCopyMerge($compilation, $bodyImg, 0, 0, 0, 0, $body_w, $body_h, 100);
+        ImageCopyMerge($compilation, $headImg, 0, 0, 0, 0, ImageSX($headImg), ImageSY($headImg), 100);
 
-        ImageCopyMerge($compilation, $bodyImg, 0, $hair_h, 0, 0, $body_w, $body_h, 100);
-        ImageCopyMerge($compilation, $hairImg, 0 + $h_left, 0 + $h_top, 0, 0, $hair_w, $hair_h, 100);
-        if ($bool_gear3) {
-            $t = floor($hair_h / 2) - floor($gear3_h / 2) + $h2g_top + $g3_top;
-            $l = floor($hair_w / 2) - floor($gear3_w / 2) + $h2g_left + $g3_left;
-            ImageCopyMerge($compilation, $gear3Img, $l + $h_left, $t + $h_top, 0, 0, $gear3_w, $gear3_h, 100);
-        }
-        if ($bool_gear2) {
-            $t = floor($hair_h / 2) - floor($gear2_h / 2) + $h2g_top + $g2_top;
-            $l = floor($hair_w / 2) - floor($gear2_w / 2) + $h2g_left + $g2_left;
-            ImageCopyMerge($compilation, $gear2Img, $l + $h_left, $t + $h_top, 0, 0, $gear2_w, $gear2_h, 100);
-        }
-        if ($bool_gear1) {
-            $t = floor($hair_h / 2) - floor($gear1_h / 2) + $h2g_top + $g1_top;
-            $l = floor($hair_w / 2) - floor($gear1_w / 2) + $h2g_left + $g1_left;
-            ImageCopyMerge($compilation, $gear1Img, $l + $h_left, $t + $h_top, 0, 0, $gear1_w, $gear1_h, 100);
-        }
-        ImagePNG($compilation, $imagefile, 100) or $die .= 'Fehler X03';
+        ImagePNG($compilation, $imagefile, 0);
         ImageDestroy($bodyImg);
-        ImageDestroy($hairImg);
+        ImageDestroy($headImg);
         ImageDestroy($compilation);
 
     }

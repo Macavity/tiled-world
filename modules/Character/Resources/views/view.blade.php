@@ -116,14 +116,18 @@
 					<td class="row2">{{$character->statPoints()}}</td>
 					<td class="row2">&nbsp;</td>
 					<td class="row1">{{trans('game.EXP')}}</td>
-					<td class="row2">{{$character->base_exp}}</td>
+					<td class="row2">
+            @include('character::partials.bar', ['type' => 'success', 'percent' => $baseExpPercent])
+          </td>
 				</tr>
 				<tr class="genmed">
 					<td class="row1">{{trans('game.SKPOINTS')}}</td>
 					<td class="row2">{{$character->skillPoints()}}</td>
 					<td class="row2">&nbsp;</td>
 					<td class="row1">{{trans('game.JEXP')}}</td>
-					<td class="row2">{{$character->job_exp}}</td>
+					<td class="row2">
+            @include('character::partials.bar', ['type' => 'success', 'percent' => $jobExpPercent])
+          </td>
 				</tr>
 				<tr class="genmed">
 					<td colspan="4" class="row1">&nbsp;</td>
@@ -134,7 +138,7 @@
 					<td class="row2" colspan="3"><textarea name="bio" cols="80" rows="3" class="post">{BIO}</textarea>
 						<input type="submit" id="upd_bio" name="upd_bio" value="Aktualisieren" class="liteoption">
 					</td>
-					<td valign="top" class="row1">{{$character->getImageFull()}}</td>
+					<td valign="top" class="row1"><img src="{{$character->getImageFull()}}"/></td>
 				</tr>
 			</table>
 		</form>
