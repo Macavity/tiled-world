@@ -64,12 +64,12 @@ class CreateCharactersTable extends Migration
             $table->integer('health_points');
             $table->integer('special_points');
 
-            $table->smallInteger('str');
-            $table->smallInteger('con');
-            $table->smallInteger('agi');
-            $table->smallInteger('dex');
-            $table->smallInteger('int');
-            $table->smallInteger('luk');
+            $table->smallInteger('str')->default(1);
+            $table->smallInteger('con')->default(1);
+            $table->smallInteger('agi')->default(1);
+            $table->smallInteger('dex')->default(1);
+            $table->smallInteger('int')->default(1);
+            $table->smallInteger('luk')->default(1);
 
             $table->integer('bonusAgi')->default(0);
             $table->integer('bonusDex')->default(0);

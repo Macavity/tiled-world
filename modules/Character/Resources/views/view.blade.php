@@ -23,7 +23,7 @@
 
 			<table width="100%" border="0" cellpadding="0" cellspacing="1" class="forumline">
 				<tr class="genmed">
-					<td colspan="5" class="row1">{{trans('game.LVL')}} : {{$character->base_level}}, {{$character->getClassName()}}</td>
+					<td colspan="5" class="row1">{{trans('game.LVL')}} : {{$character->base_level}}, {{$jobName}}</td>
 				</tr>
 				<tr class="genmed">
 					<td colspan="5" class="row1">&nbsp;{{-- INFO --}}</td>

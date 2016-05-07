@@ -11,6 +11,6 @@
     "aliases":{},
     "files": [
         "start.php",
-        "constants.php"
+        "character_constants.php"
     ]
 }

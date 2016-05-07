@@ -23,7 +23,7 @@ class EquipmentSetRepository {
      * @param Character $character
      * @return EquipmentSet
      */
-    public function active(Character $character){
+    public function activeForCharacter(Character $character){
         return EquipmentSet::find($character->equipment_set_id);
     }
 

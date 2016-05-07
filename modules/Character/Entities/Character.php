@@ -5,6 +5,7 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Character\Repositories\EffectRepository;
 use Modules\Character\Repositories\EquipmentSetRepository;
+use Modules\Game\Entities\Color;
 use Modules\Game\Entities\ItemTemplate;
 use Modules\Game\Entities\Job;
 
@@ -118,28 +119,6 @@ class Character extends Model
         return $this->hasMany(CharacterEffect::class);
     }
 
-    public function getClassName(){
-
-        switch($this->job){
-            case JOB_NOVICE:
-                return trans('game.JOB_NOVICE');
-            case JOB_SWORDMAN:
-                return trans('game.JOB_SWORDMAN');
-            case JOB_ARCHER:
-                return trans('game.JOB_ARCHER');
-            case JOB_THIEF:
-                return trans('game.JOB_THIEF');
-            case JOB_ACOLYTE:
-                return trans('game.JOB_ACOLYTE');
-            case JOB_MERCHANT:
-                return trans('game.JOB_MERCHANT');
-            case JOB_MAGE:
-                return trans('game.JOB_MAGE');
-            default:
-                return "";
-        }
-    }
-
     public function hit(){
         return $this->base_level + $this->dex;
     }
@@ -153,7 +132,7 @@ class Character extends Model
      */
     public function speed(){
         $equipmentRepository = new EquipmentSetRepository();
-        $equipment = $equipmentRepository->active($this);
+        $equipment = $equipmentRepository->activeForCharacter($this);
 
         // Use delay for Fist/No-Weapon
         $delay = ( $this->job == JOB_MAGE || $this->job == JOB_WIZARD) ? 50 : 40;
@@ -401,37 +380,8 @@ class Character extends Model
     }
 
     private function calculateJobStatBonus(){
-        switch($this->job){
-            // Swordman
-            case JOB_SWORDMAN:
-                $bonus = [1,0,1,0,0,0,3,0,0,0,5,0,0,0,1,0,0,0,3,0,0,0,5,0,0,0,6,0,0,0,2,0,0,1,0,0,5,0,3,0,1,0,3,0,6,0,2,1,0,1,1];
-                break;
-            case JOB_MAGE:
-                // Magician
-                $bonus = [2,0,4,0,0,0,5,0,0,0,5,0,0,0,4,0,0,0,2,0,0,0,4,0,0,0,2,0,0,0,6,0,0,4,0,0,5,0,4,0,2,0,6,0,4,0,4,2,0,6,4];
-                break;
-            case JOB_ARCHER:
-                // Archer
-                $bonus = [3,0,5,0,0,0,1,0,0,0,4,0,0,0,5,0,0,0,5,0,0,0,6,0,0,0,2,0,0,0,5,0,0,2,0,0,5,0,1,0,1,0,5,0,6,0,3,4,0,2,5];
-                break;
-            case JOB_ACOLYTE:
-                // Acolyte
-                $bonus = [4,0,6,0,0,0,3,0,0,0,4,0,0,0,5,0,0,0,6,0,0,0,2,0,0,0,1,0,0,0,3,0,0,4,0,0,5,0,6,0,2,0,1,0,3,0,4,5,0,1,6];
-                break;
-            case JOB_MERCHANT:
-                // Merchant
-                $bonus = [5,0,3,0,0,0,5,0,0,0,1,0,0,0,5,0,0,0,3,0,0,0,1,0,0,0,4,0,0,0,3,0,0,0,0,0,6,0,5,0,1,2,5,0,1,0,6,3,0,1,5];
-                break;
-            case JOB_THIEF:
-                // Thief
-                $bonus = [6,0,2,0,0,0,1,0,0,0,5,0,0,0,3,0,0,0,4,0,0,0,5,0,0,0,6,0,0,0,1,0,0,2,0,0,1,0,2,0,6,0,5,0,3,0,6,1,0,5,2];
-                break;
-            default:
-                $bonus = [];
-        }
 
-        $bonusForLevel = array_slice($bonus, 1, $this->job_level);
-        $bonusCount = array_count_values($bonusForLevel);
+        $bonusCount = Job::getJobLevelStatBonus($this->job, $this->job_level);
 
         $this->bonusStr += $bonusCount[STR];
         $this->bonusAgi += $bonusCount[AGI];
@@ -779,7 +729,7 @@ class Character extends Model
         if (strlen($hairColor) === 6) {
 
             // Convert #FF0000 to seperate RGB Values
-            $dye = $this->hex2int($hairColor);
+            $dye = $this->hex2rgb($hairColor);
             $dye['red'] = $dye['r'];
             $dye['green'] = $dye['g'];
             $dye['blue'] = $dye['b'];
@@ -1007,8 +957,11 @@ class Character extends Model
         $headImg = ImageCreateFromPNG($head);
 
 
-        $body_w = ImageSX($bodyImg);
-        $body_h = ImageSY($bodyImg);
+        $bodyImgWidth = ImageSX($bodyImg);
+        $bodyImgHeight = ImageSY($bodyImg);
+
+        $headImgWidth = ImageSX($headImg);
+        $headImgHeight = ImageSY($headImg);
 
 
 
@@ -1019,41 +972,33 @@ class Character extends Model
             'type_detail' => $character->job
         ])->first();
 
-        $job_top = ($jobImagePositions) ? $jobImagePositions['top'] : 0;
-        $job_left = ($jobImagePositions) ? $jobImagePositions['left'] : 0;
+        $job_top = ($jobImagePositions) ? $jobImagePositions->top : 0;
+        $job_left = ($jobImagePositions) ? $jobImagePositions->left : 0;
 
 
-        $width = max($body_w, ImageSX($headImg));
-        $height = $body_h + ImageSY($headImg);
+        $width = max($bodyImgWidth, ImageSX($headImg));
+        $height = $bodyImgHeight + ImageSY($headImg);
 
         $compilation = ImageCreate($width, $height);
-        $gray = $this->hex2int('333333');
-        $gray = ImageColorAllocate($compilation, $gray['r'], $gray['g'], $gray['b']);
-        $black = $this->hex2int('000000');
-        $black = ImageColorAllocate($compilation, $black['r'], $black['g'], $black['b']);
+        $gray = new Color('#333333');
+        $gray = ImageColorAllocate($compilation, $gray->red, $gray->green, $gray->blue);
+        $black = new Color('#000000');
+        $black = ImageColorAllocate($compilation, $black->red, $black->green, $black->blue);
+
         $none = ImageColorTransparent($compilation, $gray);
 
         $imagefile = $character->getImageFullPath();
 
         //ImageCopyMerge($compilation, $bodyImg, 0, $hair_h, 0, 0, $body_w, $body_h, 100);
         //ImageCopyMerge($compilation, $headImg, 0 + $h_left, 0 + $h_top, 0, 0, $hair_w, $hair_h, 100);
-        ImageCopyMerge($compilation, $bodyImg, 0, 0, 0, 0, $body_w, $body_h, 100);
-        ImageCopyMerge($compilation, $headImg, 0, 0, 0, 0, ImageSX($headImg), ImageSY($headImg), 100);
+        ImageCopyMerge($compilation, $bodyImg, 0, 0, 0, 0, $bodyImgWidth, $bodyImgHeight, 100);
+        ImageCopyMerge($compilation, $headImg, 0, 0, 0, 0, $headImgWidth, $headImgHeight, 100);
 
         ImagePNG($compilation, $imagefile, 0);
         ImageDestroy($bodyImg);
         ImageDestroy($headImg);
         ImageDestroy($compilation);
 
-    }
-
-    private function hex2int ($hex)
-    {
-        return array(
-            'r' => hexdec(substr($hex, 0, 2)), // 1st pair of digits
-            'g' => hexdec(substr($hex, 2, 2)), // 2nd pair
-            'b' => hexdec(substr($hex, 4, 2))  // 3rd pair
-        );
     }
 
     private function multiPlus ($col_1, $col_2)

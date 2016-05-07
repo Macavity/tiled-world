@@ -16,6 +16,7 @@ class AddActiveCharFieldToUsers extends Migration
         Schema::table('users', function($table){
             $table->integer('active_character')->default(0);
         });
+
     }
 
     /**

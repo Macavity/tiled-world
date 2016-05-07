@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Character\Entities\Character;
+use Modules\Game\Entities\Job;
 use Modules\Game\Repositories\ExperienceRepository;
 use Pingpong\Modules\Routing\Controller;
 use Modules\Character\Repositories\CharacterRepository;
@@ -124,10 +125,13 @@ class CharacterController extends Controller {
         $baseExpPercent = round($character->base_exp / $nextBaseExp * 100, 2);
         $jobExpPercent = round($character->job_exp / $nextJobExp * 100, 2);
 
+        $jobName = Job::getJobName($character->job);
+
         return view('character::view', compact(
             'character',
             'baseLevelUp',
             'jobLevelUp',
+            'jobName',
             'baseExpPercent',
             'jobExpPercent'
         ));
